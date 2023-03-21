@@ -1,5 +1,6 @@
 package com.hope.sps.zone.space;
 
+import com.hope.sps.UserDetails.UserDetailsImpl;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,5 +18,9 @@ public class Space {
     private Integer number;
     @Enumerated(EnumType.STRING)
     private State state;
+
+    public enum State {
+        AVAILABLE,TAKEN
+    }
 
 }
