@@ -12,6 +12,7 @@ import java.util.Set;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
+@Builder
 @Table(name ="zone")
 public class Zone {
     @Id
@@ -19,8 +20,8 @@ public class Zone {
     private Long id;
     private String title;
     private Double fee;
-
-    @OneToMany(cascade = CascadeType.REMOVE,fetch = FetchType.EAGER)
+    private Integer numberOfSpaces;
+    @OneToMany(cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
     @JoinColumn(name = "zone_id")
     private Set<Space> spaces;
 
@@ -28,7 +29,9 @@ public class Zone {
     @Embedded
     private Location location;
     @Embeddable
-    private static class Location{
+    @Data
+    @AllArgsConstructor@NoArgsConstructor
+    public static class Location{
         String address;
         Double lng;
         Double ltd;

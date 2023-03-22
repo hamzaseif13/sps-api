@@ -1,6 +1,9 @@
 package com.hope.sps.auth;
 
+import com.hope.sps.admin.Admin;
+import com.hope.sps.admin.AdminRepository;
 import com.hope.sps.customer.Customer;
+import com.hope.sps.customer.CustomerRepository;
 import com.hope.sps.jwt.JwtUtils;
 import com.hope.sps.UserDetails.Role;
 import com.hope.sps.UserDetails.UserDetailsImpl;
@@ -20,6 +23,9 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
+    private final CustomerRepository customerRepository;
+    private final AdminRepository adminRepository;
+
     public AuthenticationResponse login(LoginRequest request) {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -34,14 +40,20 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse register(RegisterRequest request) {
-        var user = UserDetailsImpl.
+        var userDetails = UserDetailsImpl.
                 builder().
                 email(request.getEmail()).
                 password(passwordEncoder.encode(request.getPassword())).
                 role(Role.ADMIN).
                 build();
-        userRepository.save(user);
-        var jwtToken = jwtUtils.generateToken(user);
+        Admin admin = Admin.
+                builder().
+                firstName(request.getFirstName()).
+                lastName(request.getLastName()).userDetails(userDetails).
+                build();
+        //customerRepository.save(customer);
+        adminRepository.save(admin);
+        var jwtToken = jwtUtils.generateToken(userDetails);
         return new AuthenticationResponse(jwtToken);
     }
 }

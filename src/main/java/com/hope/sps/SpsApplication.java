@@ -1,7 +1,7 @@
 package com.hope.sps;
 
-import com.hope.sps.officer.Schedule;
-import com.hope.sps.officer.ScheduleRepo;
+import com.hope.sps.customer.CustomerRepository;
+import com.hope.sps.officer.OfficerRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,9 +17,9 @@ public class SpsApplication {
         SpringApplication.run(SpsApplication.class, args);
     }
     @Bean
-    CommandLineRunner runner() {
+    CommandLineRunner runner(OfficerRepository customerRepository) {
         return args -> {
-
+            customerRepository.findAll().forEach(System.out::println);
         };
     }
 

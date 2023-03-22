@@ -19,6 +19,11 @@ public class Space {
     @Enumerated(EnumType.STRING)
     private State state;
 
+    public Space(Integer number) {
+        this.number = number;
+        this.state = State.AVAILABLE;
+    }
+
     public enum State {
         AVAILABLE,TAKEN
     }

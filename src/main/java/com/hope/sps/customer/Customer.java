@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Set;
 
@@ -13,22 +14,24 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     private String firstName;
     private String lastName;
-    @OneToOne
+
+    @OneToOne(cascade = CascadeType.PERSIST,fetch =FetchType.EAGER)
     UserDetailsImpl userDetails;
 
-    @OneToOne
+    @OneToOne(fetch =FetchType.EAGER)
     Wallet wallet;
 
-    @OneToOne
+    @OneToOne(fetch =FetchType.EAGER)
     BookingSession activeBookingSession;
 
-    @OneToMany
+    @OneToMany(fetch =FetchType.EAGER)
     @JoinColumn(name = "customer_id")
     Set<BookingSession> bookingHistory;
 
