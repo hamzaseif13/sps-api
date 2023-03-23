@@ -1,18 +1,29 @@
 package com.hope.sps.customer;
 
+import com.hope.sps.model.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 
 @Entity
-public class Car {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+@Table(name = "car")
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@ToString
+@EqualsAndHashCode(callSuper = true)
+public class Car extends BaseEntity {
 
-    String color;
-    String brand;
-    String plateNumber;
+    @Column(name = "color", nullable = false, length = 20)
+    private String color;
+
+    @Column(name = "brand", nullable = false, length = 50)
+    private String brand;
+
+    @Column(name = "plate_number", nullable = false, length = 15)
+    @NotNull
+    private String plateNumber;
 }

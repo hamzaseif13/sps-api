@@ -13,8 +13,12 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 public class AssignScheduleRequest {
+
     private List<String> daysOfWeeks;
+
     private String startsAt;
+
     private String endsAt;
+
     private Set<Long> zonedIds;
 }

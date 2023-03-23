@@ -1,7 +1,8 @@
 package com.hope.sps.zone.space;
 
-import com.hope.sps.UserDetails.UserDetailsImpl;
+import com.hope.sps.model.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 
 @Entity
@@ -9,23 +10,23 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Table(name ="space")
-@EqualsAndHashCode
-public class Space {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Table(name = "space")
+@EqualsAndHashCode(callSuper = true)
+public class Space extends BaseEntity {
+
+    @Column(name = "number", nullable = false, length = 50)
+    @Min(1)
     private Integer number;
+
     @Enumerated(EnumType.STRING)
-    private State state;
+    private State state = State.AVAILABLE;
 
     public Space(Integer number) {
         this.number = number;
-        this.state = State.AVAILABLE;
     }
 
     public enum State {
-        AVAILABLE,TAKEN
+        AVAILABLE, TAKEN
     }
 
 }

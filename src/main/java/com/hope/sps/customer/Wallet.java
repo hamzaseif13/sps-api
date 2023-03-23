@@ -1,14 +1,22 @@
 package com.hope.sps.customer;
 
+import com.hope.sps.model.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
+import lombok.*;
 
 @Entity
-public class Wallet {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-    Double balance;
+@Table(name = "wallet")
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@ToString
+@EqualsAndHashCode(callSuper = true)
+public class Wallet extends BaseEntity {
+
+    @Column(name = "balance", nullable = false, length = 50)
+    @Min(0)
+    private Double balance;
 }
