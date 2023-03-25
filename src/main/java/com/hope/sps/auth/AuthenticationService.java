@@ -2,56 +2,93 @@ package com.hope.sps.auth;
 
 import com.hope.sps.UserDetails.Role;
 import com.hope.sps.UserDetails.UserDetailsImpl;
-import com.hope.sps.UserDetails.UserRepository;
-import com.hope.sps.admin.Admin;
 import com.hope.sps.admin.AdminRepository;
 import com.hope.sps.customer.CustomerRepository;
 import com.hope.sps.jwt.JwtUtils;
+import com.hope.sps.officer.OfficerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+
     private final JwtUtils jwtUtils;
+
     private final AuthenticationManager authenticationManager;
-    private final CustomerRepository customerRepository;
+
     private final AdminRepository adminRepository;
 
-    public AuthenticationResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
+    private final OfficerRepository officerRepository;
+
+    private final CustomerRepository customerRepository;
+
+    public AuthenticationResponse authenticateAdmin(LoginRequest request) {
+        var authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getEmail()
-                        , request.getPassword()
+                        request.email(),
+                        request.password()
                 )
         );
-        var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("usrr not foiund"));
-        var jwtToken = jwtUtils.generateToken(user);
-        return new AuthenticationResponse(jwtToken);
+
+        var userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        throwExceptionIfNonAdmin(userDetails);
+
+        String token = jwtUtils.generateToken(userDetails);
+        Long adminId = adminRepository.getAdminIdByUserDetailsId(userDetails.getId());
+
+        return new AuthenticationResponse(adminId, token, userDetails.getRole());
     }
 
-    public AuthenticationResponse register(RegisterRequest request) {
-        var userDetails = UserDetailsImpl.
-                builder().
-                firstName(request.getFirstName()).
-                lastName(request.getLastName()).
-                email(request.getEmail()).
-                password(passwordEncoder.encode(request.getPassword())).
-                role(Role.ADMIN).
-                build();
+    public AuthenticationResponse authenticateOfficerAndCustomer(LoginRequest request) {
+        var authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.email(),
+                        request.password()
+                )
+        );
 
-        Admin admin = new Admin(userDetails);
+        var userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        throwExceptionIfAdmin(userDetails);
 
-        //customerRepository.save(customer);
-        adminRepository.save(admin);
-        var jwtToken = jwtUtils.generateToken(userDetails);
-        return new AuthenticationResponse(jwtToken);
+        Role userRole = userDetails.getRole();
+        Long userId;
+
+        if (userRole.equals(Role.OFFICER))
+            userId = officerRepository.getOfficerIdByUserDetailsId(userDetails.getId());
+        else
+            userId = customerRepository.getCustomerIdByUserDetailsId(userDetails.getId());
+
+        String token = jwtUtils.generateToken(userDetails);
+
+        return new AuthenticationResponse(userId, token, userRole);
     }
+
+    private void throwExceptionIfNonAdmin(UserDetailsImpl userDetails) {
+        boolean isAdmin = isAdminTryingToLogin(userDetails);
+
+        if (!isAdmin)
+            throw new BadCredentialsException("Officers and customers are not allowed to login here");
+    }
+
+    private void throwExceptionIfAdmin(UserDetailsImpl userDetails) {
+        boolean isAdmin = isAdminTryingToLogin(userDetails);
+
+        if (isAdmin)
+            throw new BadCredentialsException("Admins are not allowed to login here");
+    }
+
+    private boolean isAdminTryingToLogin(UserDetailsImpl userDetails) {
+        return userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)//todo verify
+                .anyMatch(
+                        auth -> auth.equals(Role.ADMIN.toString())
+                );
+    }
+
 }

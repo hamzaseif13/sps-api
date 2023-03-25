@@ -1,14 +1,13 @@
 package com.hope.sps.auth;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.hope.sps.UserDetails.Role;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class AuthenticationResponse {
-    private String token;
+public record AuthenticationResponse(
+        Long id,
+        String jwtToken,
+        Role role
+) {
+
+//id token role for login and register
+// admin id just token and id
 }

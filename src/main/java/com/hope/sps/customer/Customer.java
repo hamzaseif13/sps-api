@@ -33,4 +33,9 @@ public class Customer extends BaseEntity {
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "customer_id")
     private Set<Car> cars;
+
+    public Customer(UserDetailsImpl userDetails, Wallet wallet) {
+        this.userDetails = userDetails;
+        this.wallet = wallet;
+    }
 }

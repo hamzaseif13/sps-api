@@ -1,6 +1,6 @@
 package com.hope.sps.dto;
 
-import com.hope.sps.officer.Schedule;
+import com.hope.sps.officer.schedule.Schedule;
 import org.springframework.stereotype.Component;
 
 import java.sql.Time;

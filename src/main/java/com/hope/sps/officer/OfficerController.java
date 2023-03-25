@@ -1,5 +1,7 @@
 package com.hope.sps.officer;
 
+import com.hope.sps.auth.AuthenticationService;
+import com.hope.sps.auth.LoginRequest;
 import com.hope.sps.dto.OfficerRegisterRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +19,10 @@ public class OfficerController {
 
     private final OfficerService officerService;
 
+    private final AuthenticationService authenticationService;
+
     @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")//todo hasRole or authority
     public ResponseEntity<List<OfficerDTO>> getAll() {
 
         List<OfficerDTO> officerDTOList = officerService.getAll();
@@ -27,7 +31,7 @@ public class OfficerController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Long> registerOfficer(
             @RequestBody
             @Valid
@@ -38,6 +42,11 @@ public class OfficerController {
         return new ResponseEntity<>(officerId, HttpStatus.CREATED);
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<OfficerDTO> getDetailsById(){
+
+        return null;
+    }
     @PutMapping("{Id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> updateOfficer(
@@ -47,7 +56,6 @@ public class OfficerController {
             @PathVariable("Id") Long officerId) {
 
         officerService.updateOfficer(request, officerId);
-
 
         return ResponseEntity.ok("schedule Created");
     }

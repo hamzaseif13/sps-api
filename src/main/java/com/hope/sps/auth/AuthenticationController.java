@@ -1,5 +1,6 @@
 package com.hope.sps.auth;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,23 +9,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse>register(
-            @RequestBody RegisterRequest request
-    ){
-        return ResponseEntity.ok(authenticationService.register(request));
+    @PostMapping("/login")//admin login, officer and customer not allowed
+    public ResponseEntity<AuthenticationResponse> authenticateAdmin(
+            @RequestBody
+            @Valid
+            LoginRequest request
+    ) {
+
+        var authResp = authenticationService.authenticateAdmin(request);
+
+        return ResponseEntity.ok(authResp);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse>register(
+    @PostMapping("/login_mobile")//officer and customer login,  admin no allowed
+    public ResponseEntity<AuthenticationResponse> authenticateOfficerAndCustomer(
             @RequestBody LoginRequest request
-    ){
-        return ResponseEntity.ok(authenticationService.login(request));
+    ) {
+
+        var authResp = authenticationService.authenticateOfficerAndCustomer(request);
+
+        return ResponseEntity.ok(authResp);
     }
+
 }

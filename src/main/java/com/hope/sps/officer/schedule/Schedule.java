@@ -1,4 +1,4 @@
-package com.hope.sps.officer;
+package com.hope.sps.officer.schedule;
 
 import com.hope.sps.model.BaseEntity;
 import com.hope.sps.zone.Zone;

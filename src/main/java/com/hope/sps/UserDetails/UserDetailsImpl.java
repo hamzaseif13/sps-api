@@ -3,6 +3,7 @@ package com.hope.sps.UserDetails;
 import com.hope.sps.model.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -23,20 +24,20 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class UserDetailsImpl extends BaseEntity implements UserDetails {
 
-    @Email
+    @Email(message = "invalid email")
     @Column(name = "email", nullable = false, length = 50)
     private String email;
 
     @Column(name = "password", nullable = false, length = 64)
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")
+    @Size(min = 8, max = 64)
     private String password;
 
     @Column(name = "first_name", nullable = false, length = 64)
-    @Size(min = 3, max = 20)
+    @Size(min = 3, max = 20, message = "invalid lastName")
     private String firstName;
 
     @Column(name = "last_name", nullable = false, length = 64)
-    @Size(min = 3, max = 20)
+    @Size(min = 3, max = 20, message = "invalid firstName")
     private String lastName;
 
     @Enumerated(EnumType.STRING)

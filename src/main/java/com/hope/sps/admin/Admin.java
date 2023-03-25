@@ -18,6 +18,4 @@ public class Admin extends BaseEntity {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private UserDetailsImpl userDetails;
-
-
 }

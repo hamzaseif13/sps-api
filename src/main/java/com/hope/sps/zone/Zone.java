@@ -18,6 +18,9 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 public class Zone extends BaseEntity {
 
+    @Column(name = "tag", nullable = false, length = 20)
+    private String tag;
+
     @Column(name = "title", nullable = false, length = 50)
     private String title;
 

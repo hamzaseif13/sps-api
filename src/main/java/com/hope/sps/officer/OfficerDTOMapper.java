@@ -12,6 +12,7 @@ public class OfficerDTOMapper implements Function<Officer, OfficerDTO> {
         var userDetails = officer.getUserDetails();
 
         return new OfficerDTO(
+                userDetails.getId(),
                 userDetails.getFirstName(),
                 userDetails.getLastName(),
                 userDetails.getEmail(),

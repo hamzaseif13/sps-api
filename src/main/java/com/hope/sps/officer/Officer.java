@@ -2,6 +2,7 @@ package com.hope.sps.officer;
 
 import com.hope.sps.UserDetails.UserDetailsImpl;
 import com.hope.sps.model.BaseEntity;
+import com.hope.sps.officer.schedule.Schedule;
 import com.hope.sps.zone.Zone;
 import jakarta.persistence.*;
 import lombok.*;

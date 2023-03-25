@@ -19,10 +19,10 @@ public class RegisterRequestMapper implements Function<RegisterRequest, UserDeta
 
         return UserDetailsImpl
                 .builder()
-                .firstName(registerRequest.getFirstName())
-                .lastName(registerRequest.getLastName())
-                .email(registerRequest.getEmail())
-                .password(passwordEncoder.encode(registerRequest.getPassword()))
+                .firstName(registerRequest.getFirstName().toLowerCase().trim())
+                .lastName(registerRequest.getLastName().toLowerCase().trim())
+                .email(registerRequest.getEmail().toLowerCase().trim())
+                .password(passwordEncoder.encode(registerRequest.getPassword().trim()))
                 .role(Role.OFFICER)
                 .build();
     }

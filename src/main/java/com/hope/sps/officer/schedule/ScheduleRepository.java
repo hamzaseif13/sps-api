@@ -1,4 +1,4 @@
-package com.hope.sps.officer;
+package com.hope.sps.officer.schedule;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
