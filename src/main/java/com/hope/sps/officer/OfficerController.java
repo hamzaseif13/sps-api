@@ -1,13 +1,11 @@
 package com.hope.sps.officer;
 
 import com.hope.sps.auth.AuthenticationService;
-import com.hope.sps.auth.LoginRequest;
 import com.hope.sps.dto.OfficerRegisterRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

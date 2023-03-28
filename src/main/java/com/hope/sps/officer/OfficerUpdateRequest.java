@@ -16,7 +16,7 @@ public class OfficerUpdateRequest {
 
     private String endsAt;
 
-    private List<String> daysOfWeeks;
+    private List<String> daysOfWeek;
 
     private List<Long> zoneIds;
 

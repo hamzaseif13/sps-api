@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.sql.Time;
 import java.time.DayOfWeek;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,17 +61,17 @@ public class OfficerService {
     public void updateOfficer(OfficerUpdateRequest request, Long officerId) {
         Time startsAt =Time.valueOf(request.getStartsAt());
         Time endsAt =Time.valueOf(request.getEndsAt());
-
+        System.out.println("request = " + request);
         if(startsAt.after(endsAt)){
             throw new InvalidResourceException("Start time cant be before end time");
         }
-        if(request.getDaysOfWeeks().size()<1){
+        if(request.getDaysOfWeek().size()<1){
             throw new InvalidResourceException("officer should have at least one day");
         }
         Officer oldOfficer = officerRepository.findById(officerId).orElseThrow(()->new UsernameNotFoundException("officer not found"));
         var schedule =Schedule.
                 builder().
-                daysOfWeek(request.getDaysOfWeeks().stream().map(d-> DayOfWeek.valueOf(d)).collect(Collectors.toSet())).
+                daysOfWeek(request.getDaysOfWeek().stream().map(d-> DayOfWeek.valueOf(d)).collect(Collectors.toSet())).
                 startsAt(startsAt).
                 endsAt(endsAt).
                 build();
