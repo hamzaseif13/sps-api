@@ -31,10 +31,7 @@ public class OfficerController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Long> registerOfficer(
-            @RequestBody
-            @Valid
-            OfficerRegisterRequest request) {
+    public ResponseEntity<Long> registerOfficer(@RequestBody @Valid OfficerRegisterRequest request) {
 
         Long officerId = officerService.registerOfficer(request);
         return new ResponseEntity<>(officerId, HttpStatus.CREATED);
@@ -42,22 +39,23 @@ public class OfficerController {
 
     @GetMapping("{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<OfficerDTO> getOfficerById(@PathVariable Long id){
-        return new ResponseEntity<>(officerService.getOfficerById(id),HttpStatus.OK);
+    public ResponseEntity<OfficerDTO> getOfficerById(@PathVariable Long id) {
+        return new ResponseEntity<>(officerService.getOfficerById(id), HttpStatus.OK);
     }
+
     @PutMapping("{Id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> updateOfficer(
-            @RequestBody
-            @Valid
+            @RequestBody @Valid
             OfficerUpdateRequest request,
             @PathVariable("Id") Long officerId) {
 
         officerService.updateOfficer(request, officerId);
-        return ResponseEntity.ok("officer updated");
+        return new ResponseEntity<>("officer updated", HttpStatus.OK);
     }
+
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteOfficerById(@PathVariable Long id){
+    public ResponseEntity<String> deleteOfficerById(@PathVariable Long id) {
         officerService.deleteOfficerById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

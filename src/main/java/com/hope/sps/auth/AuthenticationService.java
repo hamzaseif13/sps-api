@@ -39,9 +39,8 @@ public class AuthenticationService {
         throwExceptionIfNonAdmin(userDetails);
 
         String token = jwtUtils.generateToken(userDetails);
-        Long adminId = adminRepository.getAdminIdByUserDetailsId(userDetails.getId());
 
-        return new AuthenticationResponse(adminId, token, userDetails.getRole());
+        return new AuthenticationResponse(userDetails.getEmail(), token, userDetails.getRole());
     }
 
     public AuthenticationResponse authenticateOfficerAndCustomer(LoginRequest request) {
@@ -55,17 +54,9 @@ public class AuthenticationService {
         var userDetails = (UserDetailsImpl) authentication.getPrincipal();
         throwExceptionIfAdmin(userDetails);
 
-        Role userRole = userDetails.getRole();
-        Long userId;
-
-        if (userRole.equals(Role.OFFICER))
-            userId = officerRepository.getOfficerIdByUserDetailsId(userDetails.getId());
-        else
-            userId = customerRepository.getCustomerIdByUserDetailsId(userDetails.getId());
-
         String token = jwtUtils.generateToken(userDetails);
 
-        return new AuthenticationResponse(userId, token, userRole);
+        return new AuthenticationResponse(userDetails.getEmail(), token, userDetails.getRole());
     }
 
     private void throwExceptionIfNonAdmin(UserDetailsImpl userDetails) {

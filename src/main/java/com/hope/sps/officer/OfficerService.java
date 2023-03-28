@@ -4,6 +4,7 @@ import com.hope.sps.UserDetails.UserDetailsImpl;
 import com.hope.sps.dto.OfficerRegisterRequest;
 import com.hope.sps.dto.RegisterRequestMapper;
 import com.hope.sps.dto.ScheduleMapper;
+import com.hope.sps.exception.InvalidResourceException;
 import com.hope.sps.officer.schedule.Schedule;
 import com.hope.sps.util.RegistrationUtil;
 import com.hope.sps.zone.Zone;
@@ -63,10 +64,10 @@ public class OfficerService {
         Time endsAt =Time.valueOf(request.getEndsAt());
 
         if(startsAt.after(endsAt)){
-            throw new IllegalArgumentException("Start time cant be bfore end time");
+            throw new InvalidResourceException("Start time cant be before end time");
         }
         if(request.getDaysOfWeeks().size()<1){
-            throw new IllegalArgumentException("at least one day bro wtf");
+            throw new InvalidResourceException("officer should have at least one day");
         }
         Officer oldOfficer = officerRepository.findById(officerId).orElseThrow(()->new UsernameNotFoundException("officer not found"));
         var schedule =Schedule.
