@@ -30,33 +30,4 @@ public class AdminController {
         return ResponseEntity.ok(adminId);
     }
 
-    @PutMapping("/officer/{id}/schedule")
-    public ResponseEntity<String> assignSchedule(
-            @Valid
-            @RequestBody AssignScheduleRequest request,
-            @PathVariable Long id) {
-
-        adminService.assignSchedule(request, id);
-
-        return ResponseEntity.ok("schedule Created");
-    }
-
-    @PostMapping("/zone")
-    public ResponseEntity<String> createZone(
-            @Valid
-            @RequestBody NewZoneRequest request) {
-        adminService.addParkingZone(request);
-
-        return ResponseEntity.created(URI.create("/zone")).body("Zone created");
-    }
-
-    @PostMapping("/zone/{id}")
-    public ResponseEntity<String> updateZone(
-            @Valid
-            @RequestBody UpdateZoneRequest request,
-            @PathVariable Long id) {
-        adminService.updateZone(request, id);
-
-        return ResponseEntity.ok("Updated");
-    }
 }

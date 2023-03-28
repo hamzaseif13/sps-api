@@ -33,11 +33,11 @@ public class UserDetailsImpl extends BaseEntity implements UserDetails {
     private String password;
 
     @Column(name = "first_name", nullable = false, length = 64)
-    @Size(min = 3, max = 20, message = "invalid lastName")
+    @Size(min = 3, max = 20, message = "invalid first Name")
     private String firstName;
 
     @Column(name = "last_name", nullable = false, length = 64)
-    @Size(min = 3, max = 20, message = "invalid firstName")
+    @Size(min = 3, max = 20, message = "invalid last name")
     private String lastName;
 
     @Enumerated(EnumType.STRING)

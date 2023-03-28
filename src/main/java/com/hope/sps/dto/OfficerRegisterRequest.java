@@ -15,8 +15,9 @@ public class OfficerRegisterRequest extends RegisterRequest {
 
     private String endsAt;
 
-    private List<String> daysOfWeeks;
+    private List<String> daysOfWeek;
 
     private List<Long> zoneIds;
+    private Long phone;
 
 }

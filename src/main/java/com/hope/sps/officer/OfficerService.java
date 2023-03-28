@@ -8,8 +8,11 @@ import com.hope.sps.officer.schedule.Schedule;
 import com.hope.sps.util.RegistrationUtil;
 import com.hope.sps.zone.Zone;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
+import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -41,7 +44,7 @@ public class OfficerService {
 
         Set<Zone> officerZones = getOfficeZonesFromReq(request);
 
-        var officer = new Officer(userDetails, officerSchedule, officerZones);
+        var officer = new Officer(userDetails, officerSchedule, request.getPhone(),officerZones);
 
         System.out.println("officer = " + officer);
         return officerRepository.save(officer).getId();
@@ -56,8 +59,25 @@ public class OfficerService {
     }
 
     public void updateOfficer(OfficerUpdateRequest request, Long officerId) {
+        Time startsAt =Time.valueOf(request.getStartsAt());
+        Time endsAt =Time.valueOf(request.getEndsAt());
 
-        Optional<Officer> oldOfficer = officerRepository.findById(officerId);
+        if(startsAt.after(endsAt)){
+            throw new IllegalArgumentException("Start time cant be bfore end time");
+        }
+        if(request.getDaysOfWeeks().size()<1){
+            throw new IllegalArgumentException("at least one day bro wtf");
+        }
+        Officer oldOfficer = officerRepository.findById(officerId).orElseThrow(()->new UsernameNotFoundException("officer not found"));
+        var schedule =Schedule.
+                builder().
+                daysOfWeek(request.getDaysOfWeeks().stream().map(d-> DayOfWeek.valueOf(d)).collect(Collectors.toSet())).
+                startsAt(startsAt).
+                endsAt(endsAt).
+                build();
+        // todo update zonesIDS when abed finishes
+        oldOfficer.setSchedule(schedule);
+        officerRepository.save(oldOfficer);
 
     }
 
@@ -67,5 +87,14 @@ public class OfficerService {
                 .stream()
                 .map(Zone::new)
                 .collect(Collectors.toSet());
+    }
+
+    public OfficerDTO getOfficerById(Long id){
+        Officer officer = officerRepository.findById(id).orElseThrow(()->new UsernameNotFoundException(""));
+        return officerDTOMapper.apply(officer);
+    }
+
+    public void deleteOfficerById(Long id) {
+        officerRepository.deleteById(id);
     }
 }

@@ -83,12 +83,7 @@ public class AuthenticationService {
     }
 
     private boolean isAdminTryingToLogin(UserDetailsImpl userDetails) {
-        return userDetails.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)//todo verify
-                .anyMatch(
-                        auth -> auth.equals(Role.ADMIN.toString())
-                );
+        return userDetails.getRole()==Role.ADMIN;
     }
 
 }

@@ -12,11 +12,13 @@ public class OfficerDTOMapper implements Function<Officer, OfficerDTO> {
         var userDetails = officer.getUserDetails();
 
         return new OfficerDTO(
-                userDetails.getId(),
+                officer.getId(),
                 userDetails.getFirstName(),
                 userDetails.getLastName(),
                 userDetails.getEmail(),
                 officer.getSchedule(),
-                officer.getZones());
+                officer.getZones(),
+                officer.getPhone()
+        );
     }
 }

@@ -1,11 +1,13 @@
 package com.hope.sps.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -23,6 +25,9 @@ public class ResponseEntityExceptionHandler {
 
     @Value("${exc.InvalidResourceException}")
     private String INVALID_RESOURCE_ERROR_MSG;
+
+    @Value("${exc.UsernameNotFound}")
+    private String USERNAME_NOT_FOUND;
 
 
     @ExceptionHandler(value = DuplicateResourceException.class)
@@ -64,6 +69,19 @@ public class ResponseEntityExceptionHandler {
                         ex.getMessage()
                 ));
     }
+    @ExceptionHandler(UsernameNotFoundException.class)
+    protected ResponseEntity<ApiError> usernameNotFound(UsernameNotFoundException ex){
+
+        return ResponseEntityBuilder.build(
+                new ApiError(
+                        LocalDateTime.now(),
+                        HttpStatus.NOT_FOUND,
+                        INVALID_RESOURCE_ERROR_MSG,
+                        ex.getMessage()
+                ));
+    }
+
+
     private static class ResponseEntityBuilder {
         private static ResponseEntity<ApiError> build(ApiError apiError) {
             return new ResponseEntity<>(apiError, apiError.status());

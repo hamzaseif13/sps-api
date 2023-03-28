@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,30 +23,27 @@ public class OfficerController {
     private final AuthenticationService authenticationService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")//todo hasRole or authority
-    public ResponseEntity<List<OfficerDTO>> getAll() {
-
+    @PreAuthorize("hasAuthority('ADMIN')")//todo hasRole or authority
+    public ResponseEntity<List<OfficerDTO>> getAllOfficers() {
         List<OfficerDTO> officerDTOList = officerService.getAll();
-
         return ResponseEntity.ok(officerDTOList);
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Long> registerOfficer(
             @RequestBody
             @Valid
             OfficerRegisterRequest request) {
 
         Long officerId = officerService.registerOfficer(request);
-
         return new ResponseEntity<>(officerId, HttpStatus.CREATED);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<OfficerDTO> getDetailsById(){
-
-        return null;
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<OfficerDTO> getOfficerById(@PathVariable Long id){
+        return new ResponseEntity<>(officerService.getOfficerById(id),HttpStatus.OK);
     }
     @PutMapping("{Id}")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -56,7 +54,11 @@ public class OfficerController {
             @PathVariable("Id") Long officerId) {
 
         officerService.updateOfficer(request, officerId);
-
-        return ResponseEntity.ok("schedule Created");
+        return ResponseEntity.ok("officer updated");
+    }
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> deleteOfficerById(@PathVariable Long id){
+        officerService.deleteOfficerById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 public class BookingSession extends BaseEntity {
 
+    // select * from booking session where space id = spaceId, join user and car
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false, length = 20)
     private State state;

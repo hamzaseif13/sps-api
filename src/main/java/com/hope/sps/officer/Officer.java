@@ -22,11 +22,14 @@ import java.util.Set;
 public class Officer extends BaseEntity {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
     private UserDetailsImpl userDetails;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "schedule_id")
     private Schedule schedule;
 
+    private Long phone;
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "officer_id")
     private Set<Zone> zones;

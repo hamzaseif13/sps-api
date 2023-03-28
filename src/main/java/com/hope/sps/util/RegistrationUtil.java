@@ -24,8 +24,8 @@ public class RegistrationUtil {
         final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
         Pattern passPattern = Pattern.compile(PASSWORD_PATTERN);
         Matcher passMatcher = passPattern.matcher(password);
-
-        if (!passMatcher.matches())//todo
-            throw new InvalidResourceException("Invalid provided password");
+//
+//        if (!passMatcher.matches())//todo
+//            throw new InvalidResourceException("Invalid provided password");
     }
 }

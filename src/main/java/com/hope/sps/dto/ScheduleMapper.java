@@ -14,7 +14,7 @@ public class ScheduleMapper implements Function<OfficerRegisterRequest, Schedule
     @Override
     public Schedule apply(OfficerRegisterRequest request) {
         return Schedule.builder()
-                .daysOfWeek(request.getDaysOfWeeks()
+                .daysOfWeek(request.getDaysOfWeek()
                         .stream()
                         .map(DayOfWeek::valueOf)
                         .collect(Collectors.toSet())

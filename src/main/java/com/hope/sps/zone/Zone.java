@@ -36,6 +36,8 @@ public class Zone extends BaseEntity {
     @JoinColumn(name = "zone_id")
     private Set<Space> spaces;
 
+
+
     @Embedded
     private Location location;
 
