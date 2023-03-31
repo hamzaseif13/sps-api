@@ -1,12 +1,12 @@
 package com.hope.sps.exception;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,6 +28,12 @@ public class ResponseEntityExceptionHandler {
 
     @Value("${exc.UsernameNotFound}")
     private String USERNAME_NOT_FOUND;
+
+    @Value("${exc.ResourceNotFound}")
+    private String RESOURCE_NOT_FOUND;
+
+    @Value("${exc.AccessDeniedException}")
+    private String ACCESS_DENIED_MSG;
 
 
     @ExceptionHandler(value = DuplicateResourceException.class)
@@ -59,7 +65,7 @@ public class ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(InvalidResourceException.class)
-    protected ResponseEntity<ApiError> handleInvalidResource(InvalidResourceException ex){
+    protected ResponseEntity<ApiError> handleInvalidResource(InvalidResourceException ex) {
 
         return ResponseEntityBuilder.build(
                 new ApiError(
@@ -69,14 +75,39 @@ public class ResponseEntityExceptionHandler {
                         ex.getMessage()
                 ));
     }
+
     @ExceptionHandler(UsernameNotFoundException.class)
-    protected ResponseEntity<ApiError> usernameNotFound(UsernameNotFoundException ex){
+    protected ResponseEntity<ApiError> usernameNotFound(UsernameNotFoundException ex) {
 
         return ResponseEntityBuilder.build(
                 new ApiError(
                         LocalDateTime.now(),
                         HttpStatus.NOT_FOUND,
-                        INVALID_RESOURCE_ERROR_MSG,
+                        USERNAME_NOT_FOUND,
+                        ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    protected ResponseEntity<ApiError> resourceNotFound(ResourceNotFoundException ex) {
+
+        return ResponseEntityBuilder.build(
+                new ApiError(
+                        LocalDateTime.now(),
+                        HttpStatus.NOT_FOUND,
+                        RESOURCE_NOT_FOUND,
+                        ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    protected ResponseEntity<ApiError> accessDeniedException(AccessDeniedException ex) {
+
+        return ResponseEntityBuilder.build(
+                new ApiError(
+                        LocalDateTime.now(),
+                        HttpStatus.FORBIDDEN,
+                        ACCESS_DENIED_MSG,
                         ex.getMessage()
                 ));
     }
