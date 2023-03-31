@@ -1,6 +1,7 @@
 package com.hope.sps.zone.space;
 
 import com.hope.sps.model.BaseEntity;
+import com.hope.sps.zone.Zone;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
@@ -20,6 +21,9 @@ public class Space extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private State state = State.AVAILABLE;
+
+    @OneToOne
+    private Zone zone;
 
     public Space(Integer number) {
         this.number = number;
