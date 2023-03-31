@@ -22,9 +22,6 @@ public class Space extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private State state = State.AVAILABLE;
 
-    @OneToOne
-    private Zone zone;
-
     public Space(Integer number) {
         this.number = number;
     }

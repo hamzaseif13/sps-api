@@ -24,6 +24,7 @@ public class Customer extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private UserDetailsImpl userDetails;
 
+    private Long phone;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Wallet wallet;
 

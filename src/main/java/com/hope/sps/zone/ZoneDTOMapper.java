@@ -1,5 +1,6 @@
 package com.hope.sps.zone;
 
+import com.hope.sps.zone.space.Space;
 import org.springframework.stereotype.Component;
 
 import java.util.function.Function;
@@ -20,9 +21,12 @@ public class ZoneDTOMapper implements Function<Zone, ZoneDTO> {
                 zone.getNumberOfSpaces(),
                 String.valueOf(zone.getStartsAt()),
                 String.valueOf(zone.getEndsAt()),
-                0,
-                0
+                getAvailableSpaces(zone)
         );
 
+    }
+
+    private Integer getAvailableSpaces(Zone zone) {
+       return Math.toIntExact(zone.getSpaces().stream().filter(space -> space.getState() == Space.State.AVAILABLE).count());
     }
 }

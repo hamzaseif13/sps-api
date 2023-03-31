@@ -21,44 +21,29 @@ public class ZoneController {
     public ResponseEntity<List<ZoneDTO>> getAll() {
 
         List<ZoneDTO> allZones = zoneService.getAll();
-
         return ResponseEntity.ok(allZones);
     }
-
+    @GetMapping("{id}")
+    public ResponseEntity<ZoneDTO> getZoneById(@PathVariable Long id) {
+        return ResponseEntity.ok(zoneService.getZoneById(id));
+    }
     @PostMapping
-    public ResponseEntity<Long> registerZone(
-            @RequestBody
-            @Valid
-            ZoneRegistrationRequest request
-    ) {
-
+    public ResponseEntity<Long> registerZone(@RequestBody @Valid ZoneRegistrationRequest request) {
         Long zoneId = zoneService.registerZone(request);
-
         return ResponseEntity.ok(zoneId);
     }
 
     @PutMapping("{zoneId}")
-    public ResponseEntity<Long> updateZone(
-            @RequestBody
-            @Valid
-            ZoneUpdateRequest request,
-            @PathVariable
-            Long zoneId
-    ) {
+    public ResponseEntity<Long> updateZone(@RequestBody @Valid ZoneUpdateRequest request, @PathVariable Long zoneId) {
 
         zoneService.updateZone(zoneId, request);
-
         return ResponseEntity.ok(zoneId);
     }
 
     @DeleteMapping("{zoneId}")
-    public ResponseEntity<Void> removeZone(
-            @PathVariable("zoneId")
-            Long zoneId
-    ) {
+    public ResponseEntity<Void> removeZone(@PathVariable("zoneId") Long zoneId) {
 
         zoneService.removeZone(zoneId);
-
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

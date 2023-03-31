@@ -42,9 +42,8 @@ public class OfficerService {
 
         Schedule officerSchedule = scheduleMapper.apply(request);
 
-        Set<Zone> officerZones = getOfficeZonesFromReq(request);
 
-        var officer = new Officer(userDetails, officerSchedule, request.getPhone(),officerZones);
+        var officer = new Officer(userDetails, officerSchedule, request.getPhone(),null);
 
         System.out.println("officer = " + officer);
         return officerRepository.save(officer).getId();
@@ -81,13 +80,7 @@ public class OfficerService {
 
     }
 
-    private Set<Zone> getOfficeZonesFromReq(OfficerRegisterRequest request) {
-        return request
-                .getZoneIds()
-                .stream()
-                .map(Zone::new)
-                .collect(Collectors.toSet());
-    }
+
 
     public OfficerDTO getOfficerById(Long id){
         Officer officer = officerRepository.findById(id).orElseThrow(()->new UsernameNotFoundException(""));

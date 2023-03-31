@@ -5,7 +5,9 @@ import com.hope.sps.zone.space.Space;
 import com.hope.sps.zone.space.SpaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Time;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,24 +22,15 @@ public class ZoneService {
 
     private final ZoneRegistrationRequestMapper zoneRegistrationRequestMapper;
 
-    private final ZoneUpdateRequestMapper zoneUpdateRequestMapper;
-
     private final SpaceRepository spaceRepository;
 
     public List<ZoneDTO> getAll() {
-        List<ZoneDTO> zoneDTOS = zoneRepository.findAll()
-                .stream()
+        var  x =  zoneRepository.findAll();
+        System.out.println(x.get(0).getSpaces());
+        return x.stream()
                 .map(zoneDTOMapper)
                 .toList();
 
-        zoneDTOS.forEach(zoneDTO -> {
-            zoneDTO.setTotalSpaces(
-                    spaceRepository.countSpaceByZoneId(zoneDTO.getZoneId()));
-            zoneDTO.setAvailableSpaces(
-                    spaceRepository.countByStateIsAndId(Space.State.AVAILABLE, zoneDTO.getZoneId()));
-        });
-
-        return zoneDTOS;
     }
 
     public Long registerZone(ZoneRegistrationRequest request) {
@@ -52,28 +45,47 @@ public class ZoneService {
         return zoneRepository.save(toRegisterZone).getId();
     }
 
+    @Transactional
     public void updateZone(Long zoneId, ZoneUpdateRequest request) {
-        Zone toUpdateZone = zoneUpdateRequestMapper.apply(request);
 
-        Zone oldZoneInfo = zoneRepository
+
+        Zone zone = zoneRepository
                 .findById(zoneId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "could not found zone with id: %d".formatted(zoneId)));
 
-        if (!toUpdateZone.getNumberOfSpaces().equals(oldZoneInfo.getNumberOfSpaces())) {
-            spaceRepository.removeAllByZoneId(zoneId);
+        if (request.numberOfSpaces()!=null && !zone.getNumberOfSpaces().equals(request.numberOfSpaces())) {
 
-            toUpdateZone.setSpaces(
+            spaceRepository.removeAllByZoneId(zoneId);
+            zone.setSpaces(
                     IntStream
-                            .rangeClosed(1, toUpdateZone.getNumberOfSpaces())
+                            .rangeClosed(1, request.numberOfSpaces())
                             .mapToObj(Space::new)
                             .collect(Collectors.toSet()));
+            zone.setNumberOfSpaces(request.numberOfSpaces());
         }
-        zoneRepository.save(toUpdateZone);
+        if(request.fee()!=null){
+            zone.setFee(request.fee());
+        }
+        if(request.title()!=null){
+            zone.setTitle(request.title());
+        }
+        if(request.startsAt()!=null){
+            zone.setStartsAt(Time.valueOf(request.startsAt()));
+        }
+        if(request.endsAt()!=null){
+            zone.setEndsAt(Time.valueOf(request.endsAt()));
+        }
+        zoneRepository.save(zone);
     }
 
     public void removeZone(Long zoneId) {
         zoneRepository.deleteById(zoneId);
     }
 
+    public ZoneDTO getZoneById(Long id) {
+        Zone zone =  zoneRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Zone with this id not found"));
+        System.out.println(zone);
+        return zoneDTOMapper.apply(zone);
+    }
 }

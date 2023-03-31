@@ -31,7 +31,5 @@ public class ZoneDTO {
 
     private String endsAt;
 
-    private Integer totalSpaces;
-
     private Integer availableSpaces;
 }

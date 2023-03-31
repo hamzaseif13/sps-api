@@ -46,9 +46,7 @@ public class Zone extends BaseEntity {
     @Embedded
     private Location location;
 
-    public Zone(Long Id) {
-        setId(Id);
-    }
+
 
     @Embeddable
     @Data
