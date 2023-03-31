@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 
+import java.sql.Time;
 import java.util.Set;
 
 @Entity
@@ -32,11 +33,15 @@ public class Zone extends BaseEntity {
     @Min(1)
     private Integer numberOfSpaces;
 
+    @Column(name = "start_at", nullable = false)
+    private Time startsAt;
+
+    @Column(name = "ends_at", nullable = false)
+    private Time endsAt;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "zone_id")
     private Set<Space> spaces;
-
-
 
     @Embedded
     private Location location;
