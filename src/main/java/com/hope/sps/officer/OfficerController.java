@@ -1,7 +1,5 @@
 package com.hope.sps.officer;
 
-import com.hope.sps.auth.AuthenticationService;
-import com.hope.sps.dto.OfficerRegisterRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +16,6 @@ public class OfficerController {
 
     private final OfficerService officerService;
 
-    private final AuthenticationService authenticationService;
 
     @GetMapping
     @PreAuthorize("hasAuthority('ADMIN')")//todo hasRole or authority

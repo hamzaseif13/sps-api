@@ -1,7 +1,9 @@
-package com.hope.sps.dto;
+package com.hope.sps.officer;
 
+import com.hope.sps.dto.RegisterRequest;
 import lombok.*;
 
+import java.sql.Time;
 import java.util.List;
 
 @Data
@@ -11,9 +13,9 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class OfficerRegisterRequest extends RegisterRequest {
 
-    private String startsAt;
+    private Time startsAt;
 
-    private String endsAt;
+    private Time endsAt;
 
     private List<String> daysOfWeek;
 

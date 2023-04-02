@@ -3,6 +3,7 @@ package com.hope.sps.officer;
 
 import lombok.*;
 
+import java.sql.Time;
 import java.util.List;
 
 @Data
@@ -12,9 +13,9 @@ import java.util.List;
 @ToString
 public class OfficerUpdateRequest {
 
-    private String startsAt;
+    private Time startsAt;
 
-    private String endsAt;
+    private Time endsAt;
 
     private List<String> daysOfWeek;
 

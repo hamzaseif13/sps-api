@@ -7,7 +7,6 @@ import com.hope.sps.zone.Zone;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
 import java.util.Set;
 
 
@@ -30,14 +29,10 @@ public class Officer extends BaseEntity {
     private Schedule schedule;
 
     private Long phone;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "officer_id")
     private Set<Zone> zones;
 
-    public void addZone(final Zone zone) {
-        if (zone == null)
-            zones = new HashSet<>();
-        this.zones.add(zone);
-    }
+
 
 }
