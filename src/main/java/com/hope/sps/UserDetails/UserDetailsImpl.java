@@ -3,8 +3,6 @@ package com.hope.sps.UserDetails;
 import com.hope.sps.model.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,7 +23,7 @@ import java.util.List;
 public class UserDetailsImpl extends BaseEntity implements UserDetails {
 
     @Email(message = "invalid email")
-    @Column(name = "email", nullable = false, length = 50)
+    @Column(name = "email", nullable = false, length = 50,unique = true)
     private String email;
 
     @Column(name = "password", nullable = false, length = 64)
