@@ -1,5 +1,6 @@
 package com.hope.sps.zone;
 
+import com.hope.sps.exception.InvalidResourceException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.zone.space.Space;
 import com.hope.sps.zone.space.SpaceRepository;
@@ -7,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Time;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -38,7 +38,8 @@ public class ZoneService {
                         .rangeClosed(1, toRegisterZone.getNumberOfSpaces())
                         .mapToObj(Space::new)
                         .collect(Collectors.toSet()));
-
+        if(toRegisterZone.getStartsAt().after(toRegisterZone.getEndsAt()))
+            throw new InvalidResourceException("Start time cant be before end time");
         return zoneRepository.save(toRegisterZone).getId();
     }
 
@@ -66,12 +67,14 @@ public class ZoneService {
         if(request.title()!=null){
             zone.setTitle(request.title());
         }
-        if(request.startsAt()!=null){
-            zone.setStartsAt(Time.valueOf(request.startsAt()));
+        if(request.startsAt()!=null ){
+            zone.setStartsAt(request.startsAt());
         }
         if(request.endsAt()!=null){
-            zone.setEndsAt(Time.valueOf(request.endsAt()));
+            zone.setEndsAt(request.endsAt());
         }
+        if(zone.getStartsAt().after(zone.getEndsAt()))
+            throw new InvalidResourceException("Start time cant be before end time");
         zoneRepository.save(zone);
     }
 

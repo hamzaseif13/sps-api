@@ -1,5 +1,7 @@
 package com.hope.sps.zone;
 
+import java.sql.Time;
+
 public record ZoneRegistrationRequest(
         String tag,
         String title,
@@ -8,8 +10,8 @@ public record ZoneRegistrationRequest(
         Double lng,
         Double lat,
         Integer numberOfSpaces,
-        String startsAt,
-        String endsAt
+        Time startsAt,
+        Time endsAt
 ) {
 
 

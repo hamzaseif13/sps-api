@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.sql.Time;
+
 @AllArgsConstructor
 @Data
 @ToString
@@ -27,9 +29,9 @@ public class ZoneDTO {
 
     private Integer numberOfSpaces;
 
-    private String startsAt;
+    private Time startsAt;
 
-    private String endsAt;
+    private Time endsAt;
 
     private Integer availableSpaces;
 }
