@@ -3,27 +3,25 @@ package com.hope.sps.admin;
 import com.hope.sps.UserDetails.Role;
 import com.hope.sps.UserDetails.UserDetailsImpl;
 import com.hope.sps.dto.RegisterRequest;
-import com.hope.sps.util.RegistrationUtil;
-import com.hope.sps.zone.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
 public class AdminService {
 
-    private final RegistrationUtil registrationUtil;
 
     private final PasswordEncoder passwordEncoder;
 
     private final AdminRepository adminRepository;
 
-    private final ZoneRepository zoneRepository;
 
     public Long registerAdmin(RegisterRequest request) {
-        registrationUtil.throwExceptionIfEmailExists(request.getEmail());
 
         var adminDetails = getUserDetailsFromRegReq(request);
 
@@ -39,5 +37,18 @@ public class AdminService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.ADMIN)
                 .build();
+    }
+
+    public List<AdminDto> getAllAdmins() {
+        return adminRepository.findAll().stream().map(this::fromAdmin).collect(Collectors.toList());
+    }
+
+    private AdminDto fromAdmin(Admin admin) {
+        return new AdminDto(admin.getId(), admin.getUserDetails().getFirstName(),
+                admin.getUserDetails().getLastName(), admin.getUserDetails().getEmail());
+    }
+
+    public void deleteAdminById(Long id) {
+        adminRepository.deleteById(id);
     }
 }

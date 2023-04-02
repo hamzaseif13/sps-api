@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -26,6 +26,16 @@ public class AdminController {
         Long adminId = adminService.registerAdmin(request);
 
         return ResponseEntity.ok(adminId);
+    }
+    @GetMapping
+    public ResponseEntity<List<AdminDto>> getAllAdmins(){
+        return ResponseEntity.ok(adminService.getAllAdmins());
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<String>deleteAdminById(@PathVariable Long id){
+        adminService.deleteAdminById(id);
+        return ResponseEntity.ok("delete Successfully");
     }
 
 }
