@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 
 @ControllerAdvice
@@ -34,6 +35,7 @@ public class ResponseEntityExceptionHandler {
 
     @Value("${exc.AccessDeniedException}")
     private String ACCESS_DENIED_MSG;
+
 
 
     @ExceptionHandler(value = DuplicateResourceException.class)
@@ -108,6 +110,17 @@ public class ResponseEntityExceptionHandler {
                         LocalDateTime.now(),
                         HttpStatus.FORBIDDEN,
                         ACCESS_DENIED_MSG,
+                        ex.getMessage()
+                ));
+    }
+    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+    protected ResponseEntity<ApiError> sqlConstraintException(SQLIntegrityConstraintViolationException ex) {
+
+        return ResponseEntityBuilder.build(
+                new ApiError(
+                        LocalDateTime.now(),
+                        HttpStatus.BAD_REQUEST,
+                        INVALID_RESOURCE_ERROR_MSG,
                         ex.getMessage()
                 ));
     }

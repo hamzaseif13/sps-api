@@ -1,7 +1,7 @@
 package com.hope.sps.officer.schedule;
 
 import com.hope.sps.model.BaseEntity;
-import com.hope.sps.zone.Zone;
+import com.hope.sps.officer.OfficerUpdateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,6 +9,7 @@ import java.sql.Time;
 import java.time.DayOfWeek;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "schedule")
@@ -30,4 +31,10 @@ public class Schedule extends BaseEntity {
     @CollectionTable(name = "schedule_days_of_week")
     @Enumerated(EnumType.STRING)
     private Set<DayOfWeek> daysOfWeek = new HashSet<>();
+
+    public void setNewData(OfficerUpdateRequest request) {
+        this.startsAt =  request.getStartsAt();
+        this.endsAt = request.getEndsAt();
+        this.daysOfWeek =request.getDaysOfWeek().stream().map(DayOfWeek::valueOf).collect(Collectors.toSet());
+    }
 }
