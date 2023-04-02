@@ -17,7 +17,7 @@ public class ZoneDTOMapper implements Function<Zone, ZoneDTO> {
                 zone.getFee(),
                 zone.getLocation().getAddress(),
                 zone.getLocation().getLng(),
-                zone.getLocation().getLtd(),
+                zone.getLocation().getLat(),
                 zone.getNumberOfSpaces(),
                 String.valueOf(zone.getStartsAt()),
                 String.valueOf(zone.getEndsAt()),

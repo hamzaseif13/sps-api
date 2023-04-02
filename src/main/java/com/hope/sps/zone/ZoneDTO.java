@@ -23,7 +23,7 @@ public class ZoneDTO {
 
     private Double lng;
 
-    private Double ltd;
+    private Double lat;
 
     private Integer numberOfSpaces;
 

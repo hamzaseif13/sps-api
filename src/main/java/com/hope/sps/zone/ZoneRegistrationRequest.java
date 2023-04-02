@@ -6,7 +6,7 @@ public record ZoneRegistrationRequest(
         Double fee,
         String address,
         Double lng,
-        Double ltd,
+        Double lat,
         Integer numberOfSpaces,
         String startsAt,
         String endsAt

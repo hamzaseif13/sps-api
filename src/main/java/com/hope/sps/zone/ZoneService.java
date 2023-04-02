@@ -25,12 +25,9 @@ public class ZoneService {
     private final SpaceRepository spaceRepository;
 
     public List<ZoneDTO> getAll() {
-        var  x =  zoneRepository.findAll();
-        System.out.println(x.get(0).getSpaces());
-        return x.stream()
+        return zoneRepository.findAll().stream()
                 .map(zoneDTOMapper)
                 .toList();
-
     }
 
     public Long registerZone(ZoneRegistrationRequest request) {
@@ -47,7 +44,6 @@ public class ZoneService {
 
     @Transactional
     public void updateZone(Long zoneId, ZoneUpdateRequest request) {
-
 
         Zone zone = zoneRepository
                 .findById(zoneId)

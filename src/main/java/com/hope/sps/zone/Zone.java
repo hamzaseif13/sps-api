@@ -19,7 +19,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 public class Zone extends BaseEntity {
 
-    @Column(name = "tag", nullable = false, length = 20)
+    @Column(name = "tag", nullable = false, length = 20,unique = true)
     private String tag;
 
     @Column(name = "title", nullable = false, length = 50)
@@ -55,6 +55,6 @@ public class Zone extends BaseEntity {
     public static class Location {
         private String address;
         private Double lng;
-        private Double ltd;
+        private Double lat;
     }
 }

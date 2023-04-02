@@ -15,7 +15,7 @@ public class ZoneRegistrationRequestMapper implements Function<ZoneRegistrationR
                 .title(request.title())
                 .tag(request.tag())
                 .fee(request.fee())
-                .location(new Zone.Location(request.address(), request.lng(), request.ltd()))
+                .location(new Zone.Location(request.address(), request.lng(), request.lat()))
                 .numberOfSpaces(request.numberOfSpaces())
                 .startsAt(Time.valueOf(request.startsAt()))
                 .endsAt(Time.valueOf(request.endsAt()))
