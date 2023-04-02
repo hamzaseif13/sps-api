@@ -1,7 +1,6 @@
 package com.hope.sps.zone.space;
 
 import com.hope.sps.model.BaseEntity;
-import com.hope.sps.zone.Zone;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
