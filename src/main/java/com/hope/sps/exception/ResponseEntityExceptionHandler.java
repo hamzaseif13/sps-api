@@ -2,11 +2,13 @@ package com.hope.sps.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 
 @ControllerAdvice
 @PropertySource("classpath:messages.properties")
+@Slf4j
 public class ResponseEntityExceptionHandler {
 
     @Value("${exc.ConstraintViolationException}")
@@ -36,10 +39,13 @@ public class ResponseEntityExceptionHandler {
     @Value("${exc.AccessDeniedException}")
     private String ACCESS_DENIED_MSG;
 
+    @Value("${exc.InsufficientWalletBalanceException}")
+    private String INSUFFICIENT_BALANCE_MSG;
 
 
     @ExceptionHandler(value = DuplicateResourceException.class)
     protected ResponseEntity<ApiError> handelDuplicateResource(DuplicateResourceException ex) {
+        log.error(ex.getMessage());
 
         return ResponseEntityBuilder.build(
                 new ApiError(
@@ -52,6 +58,7 @@ public class ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<ApiError> handleConstraintViolation(ConstraintViolationException ex) {
+        log.error(ex.getMessage());
 
         return ResponseEntityBuilder.build(
                 new ApiError(
@@ -68,6 +75,7 @@ public class ResponseEntityExceptionHandler {
 
     @ExceptionHandler(InvalidResourceException.class)
     protected ResponseEntity<ApiError> handleInvalidResource(InvalidResourceException ex) {
+        log.error(ex.getMessage());
 
         return ResponseEntityBuilder.build(
                 new ApiError(
@@ -78,8 +86,24 @@ public class ResponseEntityExceptionHandler {
                 ));
     }
 
+
+    @ExceptionHandler(InsufficientWalletBalanceException.class)
+    protected ResponseEntity<ApiError> insufficientWalletBalance(InsufficientWalletBalanceException ex) {
+        log.error(ex.getMessage());
+
+        return ResponseEntityBuilder.build(
+                new ApiError(
+                        LocalDateTime.now(),
+                        HttpStatus.BAD_REQUEST,
+                        INSUFFICIENT_BALANCE_MSG,
+                        ex.getMessage()
+                ));
+    }
+
+
     @ExceptionHandler(UsernameNotFoundException.class)
     protected ResponseEntity<ApiError> usernameNotFound(UsernameNotFoundException ex) {
+        log.error(ex.getMessage());
 
         return ResponseEntityBuilder.build(
                 new ApiError(
@@ -92,6 +116,7 @@ public class ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     protected ResponseEntity<ApiError> resourceNotFound(ResourceNotFoundException ex) {
+        log.error(ex.getMessage());
 
         return ResponseEntityBuilder.build(
                 new ApiError(
@@ -104,6 +129,7 @@ public class ResponseEntityExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     protected ResponseEntity<ApiError> accessDeniedException(AccessDeniedException ex) {
+        log.error(ex.getMessage());
 
         return ResponseEntityBuilder.build(
                 new ApiError(
@@ -113,8 +139,23 @@ public class ResponseEntityExceptionHandler {
                         ex.getMessage()
                 ));
     }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    protected ResponseEntity<ApiError> BadCredentialsException(BadCredentialsException ex) {
+        log.error(ex.getMessage());
+
+        return ResponseEntityBuilder.build(
+                new ApiError(
+                        LocalDateTime.now(),
+                        HttpStatus.BAD_REQUEST,
+                        ACCESS_DENIED_MSG,
+                        ex.getMessage()
+                ));
+    }
+
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     protected ResponseEntity<ApiError> sqlConstraintException(SQLIntegrityConstraintViolationException ex) {
+        log.error(ex.getMessage());
 
         return ResponseEntityBuilder.build(
                 new ApiError(
