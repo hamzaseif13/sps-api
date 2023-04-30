@@ -5,7 +5,6 @@ import com.hope.sps.officer.OfficerUpdateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 import java.sql.Time;
 import java.time.DayOfWeek;
 import java.util.HashSet;
@@ -33,9 +32,16 @@ public class Schedule extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Set<DayOfWeek> daysOfWeek = new HashSet<>();
 
+    public Schedule(Long id, Time startsAt, Time endsAt, Set<DayOfWeek> daysOfWeek) {
+        super(id);
+        this.startsAt = startsAt;
+        this.endsAt = endsAt;
+        this.daysOfWeek = daysOfWeek;
+    }
+
     public void setNewData(OfficerUpdateRequest request) {
-        this.startsAt =  request.getStartsAt();
+        this.startsAt = request.getStartsAt();
         this.endsAt = request.getEndsAt();
-        this.daysOfWeek =request.getDaysOfWeek().stream().map(DayOfWeek::valueOf).collect(Collectors.toSet());
+        this.daysOfWeek = request.getDaysOfWeek().stream().map(DayOfWeek::valueOf).collect(Collectors.toSet());
     }
 }
