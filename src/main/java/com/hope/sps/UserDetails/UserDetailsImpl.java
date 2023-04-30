@@ -23,7 +23,7 @@ import java.util.List;
 public class UserDetailsImpl extends BaseEntity implements UserDetails {
 
     @Email(message = "invalid email")
-    @Column(name = "email", nullable = false, length = 50,unique = true)
+    @Column(name = "email", nullable = false, length = 50, unique = true)
     private String email;
 
     @Column(name = "password", nullable = false, length = 64)
@@ -40,6 +40,15 @@ public class UserDetailsImpl extends BaseEntity implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    public UserDetailsImpl(Long id, String email, String password, String firstName, String lastName, Role role) {
+        super(id);
+        this.email = email;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.role = role;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
