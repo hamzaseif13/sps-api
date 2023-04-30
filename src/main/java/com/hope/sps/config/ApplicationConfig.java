@@ -1,7 +1,11 @@
 package com.hope.sps.config;
 
+import com.hope.sps.UserDetails.UserDetailsImpl;
 import com.hope.sps.UserDetails.UserDetailsServiceImpl;
+import com.hope.sps.customer.CustomerRegisterRequest;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,22 +20,30 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class ApplicationConfig {
     @Bean
-    public UserDetailsService userDetailsService(){
+    public UserDetailsService userDetailsService() {
         return new UserDetailsServiceImpl();
     }
+
     @Bean
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(userDetailsService());
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthenticationProvider;
     }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
+
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public ModelMapper getModelMapper() {
+        return new ModelMapper();
     }
 }
