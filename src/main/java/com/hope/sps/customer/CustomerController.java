@@ -1,6 +1,7 @@
 package com.hope.sps.customer;
 
 
+import com.hope.sps.auth.AuthenticationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +23,14 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> registerCustomer(
+    public ResponseEntity<AuthenticationResponse> registerCustomer(
             @Valid
             @RequestBody
             CustomerRegisterRequest request) {
 
-        Long customerId = customerService.registerCustomer(request);
+        final AuthenticationResponse authResp = customerService.registerCustomer(request);
 
-        return ResponseEntity.ok(customerId);
+        return ResponseEntity.ok(authResp);
     }
 
     @PutMapping
