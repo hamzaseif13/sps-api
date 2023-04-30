@@ -6,8 +6,6 @@ public record AuthenticationResponse(
         String email,
         String jwtToken,
         Role role
+        //first name and lastName
 ) {
-
-//id token role for login and register
-// admin id just token and id
 }
