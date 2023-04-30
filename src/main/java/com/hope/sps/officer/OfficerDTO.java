@@ -12,8 +12,7 @@ public record OfficerDTO(
         String email,
         Schedule schedule,
         Set<Zone> zones,
-        Long phone
+        String phone
 ) {
 
 }
-//id, first name, last name , phoneNumber , email
