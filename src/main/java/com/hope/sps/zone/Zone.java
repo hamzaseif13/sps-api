@@ -19,7 +19,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 public class Zone extends BaseEntity {
 
-    @Column(name = "tag", nullable = false, length = 20,unique = true)
+    @Column(name = "tag", nullable = false, length = 20, unique = true)
     private String tag;
 
     @Column(name = "title", nullable = false, length = 50)
@@ -47,6 +47,17 @@ public class Zone extends BaseEntity {
     private Location location;
 
 
+    public Zone(Long id, String tag, String title, Double fee, Integer numberOfSpaces, Time startsAt, Time endsAt, Set<Space> spaces, Location location) {
+        super(id);
+        this.tag = tag;
+        this.title = title;
+        this.fee = fee;
+        this.numberOfSpaces = numberOfSpaces;
+        this.startsAt = startsAt;
+        this.endsAt = endsAt;
+        this.spaces = spaces;
+        this.location = location;
+    }
 
     @Embeddable
     @Data
