@@ -1,4 +1,4 @@
-package com.hope.sps.customer;
+package com.hope.sps.customer.payment;
 
 import com.hope.sps.model.BaseEntity;
 import jakarta.persistence.Column;
