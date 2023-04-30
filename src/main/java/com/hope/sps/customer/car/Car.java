@@ -1,4 +1,4 @@
-package com.hope.sps.customer;
+package com.hope.sps.customer.car;
 
 import com.hope.sps.model.BaseEntity;
 import jakarta.persistence.Column;
@@ -26,4 +26,8 @@ public class Car extends BaseEntity {
     @Column(name = "plate_number", nullable = false, length = 15)
     @NotNull
     private String plateNumber;
+
+    public Car(Long id) {
+        super(id);
+    }
 }
