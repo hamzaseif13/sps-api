@@ -16,4 +16,9 @@ public class Admin extends BaseEntity {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private UserDetailsImpl userDetails;
+
+    public Admin(Long id, UserDetailsImpl userDetails) {
+        super(id);
+        this.userDetails = userDetails;
+    }
 }
