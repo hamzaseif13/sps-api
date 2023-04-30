@@ -1,8 +1,9 @@
 package com.hope.sps.booking;
 
-import com.hope.sps.customer.Car;
+import com.hope.sps.customer.car.Car;
 import com.hope.sps.model.BaseEntity;
 import com.hope.sps.zone.space.Space;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class BookingSession extends BaseEntity {
@@ -22,7 +24,7 @@ public class BookingSession extends BaseEntity {
     // select * from booking session where space id = spaceId, join user and car
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false, length = 20)
-    private State state;
+    private State state = State.ACTIVE;
 
     @Column(name = "extended", nullable = false)
     private Boolean extended = false;
@@ -32,7 +34,7 @@ public class BookingSession extends BaseEntity {
     private LocalDateTime createdAt;
 
     @Column(name = "duration", nullable = false)
-    @Size(min = 1000 * 60 * 30)//30 min
+   // @Size(min = 1000 * 60 * 30)//30 min todo
     private Long duration;
 
     @ManyToOne(cascade = {CascadeType.REFRESH}, fetch = FetchType.EAGER)
