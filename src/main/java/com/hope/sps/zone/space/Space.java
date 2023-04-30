@@ -25,6 +25,17 @@ public class Space extends BaseEntity {
         this.number = number;
     }
 
+    public Space(Long id, Integer number, State state) {
+        super(id);
+        this.number = number;
+        this.state = state;
+    }
+
+    public Space(Long id, State state) {
+        super(id);
+        this.state = state;
+    }
+
     public enum State {
         AVAILABLE, TAKEN
     }
