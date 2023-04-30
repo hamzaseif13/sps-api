@@ -1,4 +1,4 @@
-package com.hope.sps.customer;
+package com.hope.sps.customer.payment;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
