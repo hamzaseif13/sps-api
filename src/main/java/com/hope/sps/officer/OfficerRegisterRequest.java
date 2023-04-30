@@ -20,6 +20,15 @@ public class OfficerRegisterRequest extends RegisterRequest {
     private List<String> daysOfWeek;
 
     private List<Long> zoneIds;
-    private Long phone;
 
+    private String phone;
+
+    public OfficerRegisterRequest(String firstName, String lastName, String email, String password, Time startsAt, Time endsAt, List<String> daysOfWeek, List<Long> zoneIds, String phone) {
+        super(firstName, lastName, email, password);
+        this.startsAt = startsAt;
+        this.endsAt = endsAt;
+        this.daysOfWeek = daysOfWeek;
+        this.zoneIds = zoneIds;
+        this.phone = phone;
+    }
 }
