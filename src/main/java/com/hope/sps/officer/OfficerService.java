@@ -1,31 +1,29 @@
 package com.hope.sps.officer;
 
-import com.hope.sps.UserDetails.UserDetailsImpl;
-import com.hope.sps.UserDetails.UserRepository;
-import com.hope.sps.admin.EmployeeRegisterRequestMapper;
+import com.hope.sps.UserInformation.Role;
+import com.hope.sps.UserInformation.UserInformation;
+import com.hope.sps.UserInformation.UserRepository;
 import com.hope.sps.exception.DuplicateResourceException;
-import com.hope.sps.exception.InvalidResourceException;
+import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.officer.schedule.Schedule;
+import com.hope.sps.util.Validator;
 import com.hope.sps.zone.Zone;
 import com.hope.sps.zone.ZoneRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class OfficerService {
-
-    private final EmployeeRegisterRequestMapper employeeRegisterRequestMapper;
-
-    private final OfficerDTOMapper officerDTOMapper;
 
     private final OfficerRepository officerRepository;
 
@@ -33,24 +31,37 @@ public class OfficerService {
 
     private final UserRepository userRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
+    private final ModelMapper mapper;
+
     public List<OfficerDTO> getAll() {
-        return officerRepository
-                .findAll()
-                .stream()
-                .map(officerDTOMapper)
-                .collect(Collectors.toList());
+        final var officerDTOs = new ArrayList<OfficerDTO>();
+
+        officerRepository.findAll().forEach(officer ->
+                officerDTOs.add(
+                        mapper.map(officer, OfficerDTO.class)
+                ));
+        return officerDTOs;
     }
 
     public Long registerOfficer(final OfficerRegisterRequest request) {
 
-        final UserDetailsImpl userDetails = employeeRegisterRequestMapper.apply(request);
-
-        if (userRepository.existsByEmail(userDetails.getEmail()))
+        final var userInformation = mapper.map(request, UserInformation.class);
+        if (userRepository.existsByEmail(userInformation.getEmail()))
             throw new DuplicateResourceException("email already exists");
 
-        // todo add password validator for customer officer and admin <-WTF is this??????
+        if (!request.getPassword().matches(Validator.passwordValidationRegex))
+            throw new InvalidResourceProvidedException("invalid password");
 
-        final Schedule officerSchedule = Schedule.builder()
+        if (request.getStartsAt().after(request.getEndsAt())) {
+            throw new InvalidResourceProvidedException("Start time cant be before end time");
+        }
+
+        userInformation.setRole(Role.OFFICER);
+        userInformation.setPassword(passwordEncoder.encode(userInformation.getPassword()));
+
+        final var officerSchedule = Schedule.builder()
                 .daysOfWeek(
                         request.getDaysOfWeek()
                                 .stream()
@@ -63,31 +74,33 @@ public class OfficerService {
 
         final List<Zone> zonesByIds = zoneRepository.findAllById(request.getZoneIds());
 
-        final Officer officer = new Officer(userDetails, officerSchedule, request.getPhone(), new HashSet<>(zonesByIds));
+        final var officer = new Officer(
+                userInformation,
+                officerSchedule,
+                request.getPhoneNumber(),
+                new HashSet<>(zonesByIds)
+        );
 
         return officerRepository.save(officer).getId();
     }
 
-
     public void updateOfficer(final OfficerUpdateRequest request, final Long officerId) {
 
         if (request.getStartsAt().after(request.getEndsAt())) {
-            throw new InvalidResourceException("Start time cant be before end time");
+            throw new InvalidResourceProvidedException("Start time cant be before end time");
         }
 
-        if (request.getDaysOfWeek().size() < 1) {
-            throw new InvalidResourceException("officer should have at least one day");
-        }
-
-        Officer oldOfficer = officerRepository.findById(officerId).
-                orElseThrow(() -> new ResourceNotFoundException("officer not found"));
+        final var oldOfficer = officerRepository.findById(officerId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException("officer not found")
+                );
 
         // updating schedule info
-        Schedule schedule = oldOfficer.getSchedule();
+        final var schedule = oldOfficer.getSchedule();
         schedule.setNewData(request);
 
         // assigning zones to officer
-        Set<Zone> zones = new HashSet<>(zoneRepository.findAllById(request.getZoneIds()));
+        final var zones = new HashSet<>(zoneRepository.findAllById(request.getZoneIds()));
         oldOfficer.setZones(zones);
 
         officerRepository.save(oldOfficer);
@@ -96,12 +109,12 @@ public class OfficerService {
 
     public OfficerDTO getOfficerById(final Long officerId) {
 
-        final Officer officer = officerRepository.findById(officerId)
+        final var officer = officerRepository.findById(officerId)
                 .orElseThrow(
                         () -> new ResourceNotFoundException("could not found officer with id: {%s}".formatted(officerId))
                 );
 
-        return officerDTOMapper.apply(officer);
+        return mapper.map(officer, OfficerDTO.class);
     }
 
     public void deleteOfficerById(final Long officerId) {
