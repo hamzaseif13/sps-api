@@ -1,7 +1,7 @@
 package com.hope.sps.admin;
 
 
-import com.hope.sps.dto.RegisterRequest;
+import com.hope.sps.common.RegisterRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAuthority('ADMIN')")
 public class AdminController {
 
     private final AdminService adminService;
@@ -28,7 +28,6 @@ public class AdminController {
 
         if (adminDTOS.isEmpty())
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
         return ResponseEntity.ok(adminDTOS);
     }
 
@@ -40,20 +39,17 @@ public class AdminController {
     ) {
 
         final Long adminId = adminService.registerAdmin(request);
-
         return ResponseEntity.ok(adminId);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("{adminId}")
     public ResponseEntity<Void> deleteById(
-            @PathVariable
-            @Validated
-            @Positive
-            Long id
+            @PathVariable("adminId")
+            @Validated @Positive
+            Long adminId
     ) {
 
-        adminService.deleteAdminById(id);
+        adminService.deleteAdminById(adminId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 }
