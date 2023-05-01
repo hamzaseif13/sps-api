@@ -9,11 +9,4 @@ public class SpsApplication {
     public static void main(String[] args) {
         SpringApplication.run(SpsApplication.class, args);
     }
-    /*@Bean
-    CommandLineRunner runner(OfficerRepository customerRepository) {
-        return args -> {
-            customerRepository.findAll().forEach(System.out::println);
-        };
-    }
-*/
 }
