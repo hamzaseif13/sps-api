@@ -1,14 +1,13 @@
 package com.hope.sps.auth;
 
-import com.hope.sps.UserDetails.Role;
-import com.hope.sps.UserDetails.UserDetailsImpl;
+import com.hope.sps.UserInformation.Role;
+import com.hope.sps.UserInformation.UserInformation;
 import com.hope.sps.jwt.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,47 +21,52 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(final LoginRequest request, final String flag) {
         var authentication = authenticateLoginRequest(request);
 
-        var userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        var userInformation = (UserInformation) authentication.getPrincipal();
 
-        verifyAuthTrail(userDetails, flag);
+        verifyAuthTrail(userInformation, flag);
 
-        final String token = jwtUtils.generateToken(userDetails);
+        final String token = jwtUtils.generateToken(userInformation);
 
-        return new AuthenticationResponse(userDetails.getEmail(), token, userDetails.getRole());
+        return new AuthenticationResponse(
+                userInformation.getEmail(),
+                token,
+                userInformation.getRole(),
+                userInformation.getFirstName(),
+                userInformation.getLastName()
+        );
     }
 
-    private void verifyAuthTrail(final UserDetailsImpl userDetails, final String flag) {
+    private void verifyAuthTrail(final UserInformation userInformation, final String flag) {
         if (flag.equals("ADMIN"))
-            throwExceptionIfNonAdmin(userDetails);
+            throwExceptionIfNonAdmin(userInformation);
         else if (flag.equals("NON_ADMIN"))
-            throwExceptionIfAdmin(userDetails);
+            throwExceptionIfAdmin(userInformation);
     }
 
 
-    private void throwExceptionIfNonAdmin(final UserDetailsImpl userDetails) {
-        boolean isAdmin = isAdminTryingToLogin(userDetails);
+    private void throwExceptionIfNonAdmin(final UserInformation userInformation) {
+        boolean isAdmin = isAdminTryingToLogin(userInformation);
 
         if (!isAdmin)
             throw new BadCredentialsException("Officers and customers are not allowed to login here");
     }
 
-    private void throwExceptionIfAdmin(final UserDetailsImpl userDetails) {
-        boolean isAdmin = isAdminTryingToLogin(userDetails);
+    private void throwExceptionIfAdmin(final UserInformation userInformation) {
+        boolean isAdmin = isAdminTryingToLogin(userInformation);
 
         if (isAdmin)
             throw new BadCredentialsException("Admins are not allowed to login here");
     }
 
-    private boolean isAdminTryingToLogin(final UserDetailsImpl userDetails) {
-        return userDetails.getRole() == Role.ADMIN;
+    private boolean isAdminTryingToLogin(final UserInformation userInformation) {
+        return userInformation.getRole() == Role.ADMIN;
     }
 
     private Authentication authenticateLoginRequest(final LoginRequest request) {
-        System.err.println(request);
         return authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.email(),
-                        request.password()
+                        request.getEmail(),
+                        request.getPassword()
                 )
         );
     }
