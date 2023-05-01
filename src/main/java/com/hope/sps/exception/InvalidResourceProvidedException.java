@@ -4,9 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-public class InvalidResourceException extends RuntimeException {
+public class InvalidResourceProvidedException extends RuntimeException {
 
-    public InvalidResourceException(String message) {
+    public InvalidResourceProvidedException(String message) {
         super(message);
     }
 }
