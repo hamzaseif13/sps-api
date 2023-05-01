@@ -1,24 +1,29 @@
 package com.hope.sps.admin;
 
-import com.hope.sps.UserDetails.UserDetailsImpl;
-import com.hope.sps.model.BaseEntity;
+import com.hope.sps.UserInformation.UserInformation;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "admin")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class Admin extends BaseEntity {
+public class Admin {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private UserDetailsImpl userDetails;
+    private UserInformation userInformation;
 
-    public Admin(Long id, UserDetailsImpl userDetails) {
-        super(id);
-        this.userDetails = userDetails;
+    public Admin(UserInformation userInformation) {
+        this.userInformation = userInformation;
     }
+
 }
