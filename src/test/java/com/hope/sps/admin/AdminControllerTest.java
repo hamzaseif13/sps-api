@@ -1,7 +1,7 @@
 package com.hope.sps.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hope.sps.dto.RegisterRequest;
+import com.hope.sps.common.RegisterRequest;
 import com.hope.sps.jwt.JWTAuthFilter;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;

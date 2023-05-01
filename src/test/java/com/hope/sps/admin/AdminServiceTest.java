@@ -1,8 +1,8 @@
 package com.hope.sps.admin;
 
-import com.hope.sps.UserDetails.Role;
-import com.hope.sps.UserDetails.UserDetailsImpl;
-import com.hope.sps.dto.RegisterRequest;
+import com.hope.sps.UserInformation.Role;
+import com.hope.sps.UserInformation.UserInformation;
+import com.hope.sps.common.RegisterRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,7 @@ class AdminServiceTest {
 
     private RegisterRequest testRegisterRequest;
 
-    private UserDetailsImpl testUserDetailsImpl;
+    private UserInformation testUserInformation;
 
     private Admin testAdmin;
 
@@ -47,7 +47,7 @@ class AdminServiceTest {
                 "John1234"
         );
 
-        testUserDetailsImpl = new UserDetailsImpl(
+        testUserInformation = new UserInformation(
                 "John@gmail.com",
                 "ENCODED_PASSWORD",
                 "John",
@@ -55,7 +55,7 @@ class AdminServiceTest {
                 Role.ADMIN
         );
 
-        testAdmin = new Admin(1L, testUserDetailsImpl);
+        testAdmin = new Admin(1L, testUserInformation);
     }
 
 
@@ -63,10 +63,10 @@ class AdminServiceTest {
     @DisplayName("test registerAdmin(RegisterRequest request)")
     void testRegisterAdmin_shouldRegisterTheAdminAndReturnTheGeneratedID() {
 
-        final Admin toRegisterAdmin = new Admin(testUserDetailsImpl);
+        final Admin toRegisterAdmin = new Admin(testUserInformation);
 
         Mockito.when(employeeRegisterRequestMapper.apply(testRegisterRequest))
-                .thenReturn(testUserDetailsImpl);
+                .thenReturn(testUserInformation);
 
         Mockito.when(adminRepository.save(toRegisterAdmin))
                 .thenReturn(testAdmin);

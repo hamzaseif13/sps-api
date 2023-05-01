@@ -1,9 +1,8 @@
 package com.hope.sps.officer;
 
-import com.hope.sps.UserDetails.Role;
-import com.hope.sps.UserDetails.UserDetailsImpl;
-import com.hope.sps.UserDetails.UserRepository;
-import com.hope.sps.admin.EmployeeRegisterRequestMapper;
+import com.hope.sps.UserInformation.Role;
+import com.hope.sps.UserInformation.UserInformation;
+import com.hope.sps.UserInformation.UserRepository;
 import com.hope.sps.exception.DuplicateResourceException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.officer.schedule.Schedule;
@@ -53,7 +52,7 @@ class OfficerServiceTest {
     @InjectMocks
     private OfficerService underTest;
 
-    private UserDetailsImpl testUserDetails;
+    private UserInformation testUserDetails;
 
     private Schedule testSchedule;
 
@@ -70,7 +69,7 @@ class OfficerServiceTest {
 
     @BeforeEach
     void setUp() {
-        testUserDetails = new UserDetailsImpl(
+        testUserDetails = new UserInformation(
                 1L,
                 "John@gmail.com",
                 "ENCODED_PASSWORD",

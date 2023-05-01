@@ -1,7 +1,7 @@
 package com.hope.sps.auth;
 
-import com.hope.sps.UserDetails.Role;
-import com.hope.sps.UserDetails.UserDetailsImpl;
+import com.hope.sps.UserInformation.Role;
+import com.hope.sps.UserInformation.UserInformation;
 import com.hope.sps.jwt.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,15 +34,15 @@ class AuthenticationServiceTest {
 
     private LoginRequest testLoginRequest;
 
-    private UserDetailsImpl testAdminUserDetailsImpl;
+    private UserInformation testAdminUserInformation;
 
-    private UserDetailsImpl testNonAdminUserDetailsImpl;
+    private UserInformation testNonAdminUserInformation;
 
     @BeforeEach
     public void setUp() {
         testLoginRequest = new LoginRequest("JohnDoe@gmail.com", "John1234");
 
-        testAdminUserDetailsImpl = new UserDetailsImpl(
+        testAdminUserInformation = new UserInformation(
                 "John@gmail.com",
                 "ENCODED_PASSWORD",
                 "John",
@@ -50,7 +50,7 @@ class AuthenticationServiceTest {
                 Role.ADMIN
         );
 
-        testNonAdminUserDetailsImpl = new UserDetailsImpl(
+        testNonAdminUserInformation = new UserInformation(
                 "Lily@gmail.com",
                 "ENCODED_PASSWORD",
                 "Lily",
@@ -70,17 +70,17 @@ class AuthenticationServiceTest {
                 .thenReturn(mockAuthentication);
 
         Mockito.when(mockAuthentication.getPrincipal())
-                .thenReturn(testAdminUserDetailsImpl);
+                .thenReturn(testAdminUserInformation);
 
-        Mockito.when(jwtUtils.generateToken(testAdminUserDetailsImpl))
+        Mockito.when(jwtUtils.generateToken(testAdminUserInformation))
                 .thenReturn("TEST_JWT_TOKEN");
 
         final AuthenticationResponse authResp = authenticationService
                 .authenticate(testLoginRequest, "ADMIN");
 
-        assertThat(authResp.email()).isEqualTo(testAdminUserDetailsImpl.getEmail());
+        assertThat(authResp.email()).isEqualTo(testAdminUserInformation.getEmail());
         assertThat(authResp.jwtToken()).isEqualTo("TEST_JWT_TOKEN");
-        assertThat(authResp.role()).isEqualTo(testAdminUserDetailsImpl.getRole());
+        assertThat(authResp.role()).isEqualTo(testAdminUserInformation.getRole());
     }
 
     @Test
@@ -94,7 +94,7 @@ class AuthenticationServiceTest {
                 .thenReturn(mockAuthentication);
 
         Mockito.when(mockAuthentication.getPrincipal())
-                .thenReturn(testNonAdminUserDetailsImpl);
+                .thenReturn(testNonAdminUserInformation);
 
         assertThatExceptionOfType(BadCredentialsException.class)
                 .isThrownBy(() -> authenticationService.authenticate(testLoginRequest, "ADMIN"));
@@ -111,17 +111,17 @@ class AuthenticationServiceTest {
                 .thenReturn(mockAuthentication);
 
         Mockito.when(mockAuthentication.getPrincipal())
-                .thenReturn(testNonAdminUserDetailsImpl);
+                .thenReturn(testNonAdminUserInformation);
 
-        Mockito.when(jwtUtils.generateToken(testNonAdminUserDetailsImpl))
+        Mockito.when(jwtUtils.generateToken(testNonAdminUserInformation))
                 .thenReturn("TEST_JWT_TOKEN");
 
         final AuthenticationResponse authResp = authenticationService
                 .authenticate(testLoginRequest, "NON_ADMIN");
 
-        assertThat(authResp.email()).isEqualTo(testNonAdminUserDetailsImpl.getEmail());
+        assertThat(authResp.email()).isEqualTo(testNonAdminUserInformation.getEmail());
         assertThat(authResp.jwtToken()).isEqualTo("TEST_JWT_TOKEN");
-        assertThat(authResp.role()).isEqualTo(testNonAdminUserDetailsImpl.getRole());
+        assertThat(authResp.role()).isEqualTo(testNonAdminUserInformation.getRole());
     }
 
     @Test
@@ -135,7 +135,7 @@ class AuthenticationServiceTest {
                 .thenReturn(mockAuthentication);
 
         Mockito.when(mockAuthentication.getPrincipal())
-                .thenReturn(testAdminUserDetailsImpl);
+                .thenReturn(testAdminUserInformation);
 
         assertThatExceptionOfType(BadCredentialsException.class)
                 .isThrownBy(() -> authenticationService.authenticate(testLoginRequest, "NON_ADMIN"));
