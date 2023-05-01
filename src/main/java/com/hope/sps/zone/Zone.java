@@ -1,10 +1,11 @@
 package com.hope.sps.zone;
 
-import com.hope.sps.model.BaseEntity;
 import com.hope.sps.zone.space.Space;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Time;
 import java.util.Set;
@@ -12,12 +13,14 @@ import java.util.Set;
 @Entity
 @Table(name = "zone")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@ToString
-@EqualsAndHashCode(callSuper = true)
-public class Zone extends BaseEntity {
+public class Zone {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "tag", nullable = false, length = 20, unique = true)
     private String tag;
@@ -26,11 +29,9 @@ public class Zone extends BaseEntity {
     private String title;
 
     @Column(name = "fee", nullable = false)
-    @Min(0)
     private Double fee;
 
     @Column(name = "number_of_spaces", nullable = false)
-    @Min(1)
     private Integer numberOfSpaces;
 
     @Column(name = "start_at", nullable = false)
@@ -46,26 +47,30 @@ public class Zone extends BaseEntity {
     @Embedded
     private Location location;
 
-
-    public Zone(Long id, String tag, String title, Double fee, Integer numberOfSpaces, Time startsAt, Time endsAt, Set<Space> spaces, Location location) {
-        super(id);
-        this.tag = tag;
-        this.title = title;
-        this.fee = fee;
-        this.numberOfSpaces = numberOfSpaces;
-        this.startsAt = startsAt;
-        this.endsAt = endsAt;
-        this.spaces = spaces;
-        this.location = location;
+    public void setAddress(String address) {
+        location.setAddress(address);
     }
+
+    public void setLng(Double lng) {
+        location.setLng(lng);
+    }
+
+    public void setLat(Double lat) {
+        location.setLat(lat);
+    }
+
 
     @Embeddable
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Location {
+
         private String address;
+
         private Double lng;
+
         private Double lat;
+
     }
 }
