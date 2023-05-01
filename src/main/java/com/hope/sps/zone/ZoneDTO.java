@@ -1,19 +1,19 @@
 package com.hope.sps.zone;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
 import java.sql.Time;
 
-@AllArgsConstructor
 @Data
-@ToString
-@EqualsAndHashCode
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonPropertyOrder({"id", "tag", "title", "fee", "address", "lng", "lat", "numberOfSpaces", "startsAt", "endsAt", "availableSpaces"})
 public class ZoneDTO {
 
-    private Long zoneId;
+    private Long id;
 
     private String tag;
 
