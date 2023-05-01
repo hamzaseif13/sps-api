@@ -20,21 +20,30 @@ public class ZoneController {
     @GetMapping
     public ResponseEntity<List<ZoneDTO>> getAll() {
 
-        List<ZoneDTO> allZones = zoneService.getAll();
+        final List<ZoneDTO> allZones = zoneService.getAll();
         return ResponseEntity.ok(allZones);
     }
-    @GetMapping("{id}")
-    public ResponseEntity<ZoneDTO> getZoneById(@PathVariable Long id) {
-        return ResponseEntity.ok(zoneService.getZoneById(id));
+
+    @GetMapping("{zoneId}")
+    public ResponseEntity<ZoneDTO> getZoneById(@PathVariable("zoneId") Long zoneId) {
+        return ResponseEntity.ok(zoneService.getZoneById(zoneId));
     }
+
     @PostMapping
-    public ResponseEntity<Long> registerZone(@RequestBody @Valid ZoneRegistrationRequest request) {
-        Long zoneId = zoneService.registerZone(request);
+    public ResponseEntity<Long> registerZone(
+            @RequestBody @Valid
+            ZoneRegistrationRequest request
+    ) {
+        final Long zoneId = zoneService.registerZone(request);
         return ResponseEntity.ok(zoneId);
     }
 
     @PutMapping("{zoneId}")
-    public ResponseEntity<Long> updateZone(@RequestBody @Valid ZoneUpdateRequest request, @PathVariable Long zoneId) {
+    public ResponseEntity<Long> updateZone(
+            @RequestBody @Valid
+            ZoneUpdateRequest request,
+            @PathVariable Long zoneId
+    ) {
 
         zoneService.updateZone(zoneId, request);
         return ResponseEntity.ok(zoneId);
