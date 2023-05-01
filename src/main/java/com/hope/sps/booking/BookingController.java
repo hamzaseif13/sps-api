@@ -1,10 +1,14 @@
 package com.hope.sps.booking;
 
+import com.hope.sps.UserInformation.UserInformation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -12,15 +16,17 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/booking")
-//@PreAuthorize("hasRole('CUSTOMER')")
+@PreAuthorize("hasAuthority('CUSTOMER')")
 public class BookingController {
 
     private final BookingService bookingService;
 
     @GetMapping("current")
-    public ResponseEntity<BookingDTO> getCurrentBookingSessionForLoggedInUser() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        final Optional<BookingDTO> bookingDTO = bookingService.getCurrentBookingSession(authentication);
+    public ResponseEntity<BookingDTO> getCurrentBookingSessionForLoggedInUser(
+            @AuthenticationPrincipal
+            UserInformation loggedInUser
+    ) {
+        final Optional<BookingDTO> bookingDTO = bookingService.getCurrentBookingSession(loggedInUser);
 
         return bookingDTO.map(ResponseEntity::ok)
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
@@ -28,21 +34,27 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<Long> startNewBookingSession(
-            @RequestBody
-            @Valid BookingSessionRequest request
+            @AuthenticationPrincipal
+            UserInformation loggedInUser,
+            @RequestBody @Valid
+            BookingSessionRequest request
     ) {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        final Long id = bookingService.startNewBookingSession(authentication, request);
+        final Long id = bookingService.startNewBookingSession(loggedInUser, request);
 
         return ResponseEntity.ok(id);
     }
 
     @PatchMapping("{sessionId}/extend")
     public ResponseEntity<Void> extendCurrentSession(
-            @PathVariable("sessionId") Long currentSessionId,
-            @RequestBody Long durationInMS
+            @PathVariable("sessionId")
+            @Validated @Positive
+            Long currentSessionId,
+            @RequestBody @Valid
+            ExtendCurrentSessionRequest request,
+            @AuthenticationPrincipal
+            UserInformation loggedInUser
     ) {
-        bookingService.extendCurrentSession(currentSessionId, durationInMS);
+        bookingService.extendCurrentSession(currentSessionId, request, loggedInUser);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
