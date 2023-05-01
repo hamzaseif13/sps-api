@@ -1,11 +1,9 @@
 package com.hope.sps.customer.car;
 
-import com.hope.sps.model.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Entity
@@ -13,9 +11,11 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@ToString
-@EqualsAndHashCode(callSuper = true)
-public class Car extends BaseEntity {
+public class Car {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "color", nullable = false, length = 20)
     private String color;
@@ -23,11 +23,10 @@ public class Car extends BaseEntity {
     @Column(name = "brand", nullable = false, length = 50)
     private String brand;
 
-    @Column(name = "plate_number", nullable = false, length = 15)
-    @NotNull
+    @Column(name = "plate_number", nullable = false, length = 15, unique = true)
     private String plateNumber;
 
     public Car(Long id) {
-        super(id);
+        this.id = id;
     }
 }
