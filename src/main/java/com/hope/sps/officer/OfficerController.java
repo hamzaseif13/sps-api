@@ -21,33 +21,29 @@ public class OfficerController {
 
     @GetMapping
     public ResponseEntity<List<OfficerDTO>> getAll() {
-        final List<OfficerDTO> officerDTOList = officerService.getAll();
 
-        return ResponseEntity.ok(officerDTOList);
+        final List<OfficerDTO> officerDTOS = officerService.getAll();
+        return ResponseEntity.ok(officerDTOS);
     }
 
     @PostMapping
     public ResponseEntity<Long> register(
-            @RequestBody
-            @Valid
+            @RequestBody @Valid
             OfficerRegisterRequest request
     ) {
 
         final Long officerId = officerService.registerOfficer(request);
-
         return new ResponseEntity<>(officerId, HttpStatus.CREATED);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("{officerId}")
     public ResponseEntity<OfficerDTO> getById(
-            @PathVariable
-            @Validated
-            @Positive
-            Long id) {
+            @PathVariable("officerId")
+            @Validated @Positive
+            Long officerId) {
 
-        final OfficerDTO officerById = officerService.getOfficerById(id);
-
-        return new ResponseEntity<>(officerById, HttpStatus.OK);
+        final OfficerDTO officerById = officerService.getOfficerById(officerId);
+        return ResponseEntity.ok(officerById);
     }
 
     @PutMapping("{Id}")
