@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,18 +16,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 
 @Component
+@RequiredArgsConstructor
 public class JWTAuthFilter extends OncePerRequestFilter {
-    private final JwtUtils jwtUtils;
-    private final UserDetailsService userDetailsService;
 
-    public JWTAuthFilter(JwtUtils jwtUtils, UserDetailsService userDetailsService) {
-        this.jwtUtils = jwtUtils;
-        this.userDetailsService = userDetailsService;
-    }
+    private final JwtUtils jwtUtils;
+
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -39,15 +36,21 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        String jwt = authHeader.substring(7);
-        try {
-            String userEmail = jwtUtils.extractUsername(jwt);
-            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails user = this.userDetailsService.loadUserByUsername(userEmail);
 
+        final String jwt = authHeader.substring(7);
+
+        try {
+            final String userEmail = jwtUtils.extractUsername(jwt);
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+                final UserDetails user = this.userDetailsService.loadUserByUsername(userEmail);
                 if (jwtUtils.isTokenValid(jwt, user)) {
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    final var authToken = new UsernamePasswordAuthenticationToken(
+                            user,
+                            null,
+                            user.getAuthorities()
+                    );
+
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
@@ -55,7 +58,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException exception) {
             response.setStatus(403);
         }
-        filterChain.doFilter(request, response);
 
+        filterChain.doFilter(request, response);
     }
 }
