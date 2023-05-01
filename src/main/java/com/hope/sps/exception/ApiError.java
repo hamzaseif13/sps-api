@@ -1,15 +1,16 @@
 package com.hope.sps.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record ApiError(
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yy hh:mm:ss")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
         LocalDateTime timeStamp,
-        HttpStatus status,
-        String message,
-        String error
+        int status,
+        String error,
+        List<String> messages,
+        String path
 ) {
 }
