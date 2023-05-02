@@ -1,13 +1,14 @@
 package com.hope.sps.auth;
 
-import com.hope.sps.UserDetails.Role;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.hope.sps.UserInformation.Role;
 
+@JsonPropertyOrder({"firstName", "lastName", "email", "jwtToken", "role"})
 public record AuthenticationResponse(
         String email,
         String jwtToken,
-        Role role
+        Role role,
+        String firstName,
+        String lastName
 ) {
-
-//id token role for login and register
-// admin id just token and id
 }

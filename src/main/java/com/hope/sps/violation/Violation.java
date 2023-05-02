@@ -2,19 +2,22 @@ package com.hope.sps.violation;
 
 
 import com.hope.sps.customer.Customer;
-import com.hope.sps.model.BaseEntity;
 import com.hope.sps.officer.Officer;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "violation")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@EqualsAndHashCode(callSuper = true)
-public class Violation extends BaseEntity {
+public class Violation {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")

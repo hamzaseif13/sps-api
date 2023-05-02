@@ -15,20 +15,25 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
 
+
     @PostMapping("/login")//admin login, officer and customer not allowed
-    public ResponseEntity<AuthenticationResponse> authenticateAdmin(@RequestBody @Valid LoginRequest request) {
+    public ResponseEntity<AuthenticationResponse> authenticateAdmin(
+            @RequestBody @Valid
+            LoginRequest request
+    ) {
 
-        var authResp = authenticationService.authenticateAdmin(request);
-
+        var authResp = authenticationService.authenticate(request, "ADMIN");
         return ResponseEntity.ok(authResp);
     }
 
-    @PostMapping("/login_mobile")//officer and customer login,  admin no allowed
-    public ResponseEntity<AuthenticationResponse> authenticateOfficerAndCustomer(@RequestBody LoginRequest request) {
 
-        var authResp = authenticationService.authenticateOfficerAndCustomer(request);
+    @PostMapping("/login_mobile")//officer and customer login, admin no allowed
+    public ResponseEntity<AuthenticationResponse> authenticateOfficerAndCustomer(
+            @RequestBody @Valid
+            LoginRequest request
+    ) {
 
+        var authResp = authenticationService.authenticate(request, "NON_ADMIN");
         return ResponseEntity.ok(authResp);
     }
-
 }

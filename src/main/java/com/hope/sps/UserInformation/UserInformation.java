@@ -1,10 +1,10 @@
-package com.hope.sps.UserDetails;
+package com.hope.sps.UserInformation;
 
-import com.hope.sps.model.BaseEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,33 +13,32 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "user")
+@Table(name = "user_information")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@EqualsAndHashCode(callSuper = true)
-public class UserDetailsImpl extends BaseEntity implements UserDetails {
+public class UserInformation implements UserDetails {
 
-    @Email(message = "invalid email")
-    @Column(name = "email", nullable = false, length = 50,unique = true)
-    private String email;
-
-    @Column(name = "password", nullable = false, length = 64)
-    @Size(min = 8, max = 64)
-    private String password;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "first_name", nullable = false, length = 64)
-    @Size(min = 3, max = 20, message = "invalid first Name")
     private String firstName;
 
     @Column(name = "last_name", nullable = false, length = 64)
-    @Size(min = 3, max = 20, message = "invalid last name")
     private String lastName;
+
+    @Column(name = "email", nullable = false, length = 50, unique = true)
+    private String email;
+
+    @Column(name = "password", nullable = false, length = 64)
+    private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

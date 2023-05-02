@@ -1,11 +1,13 @@
 package com.hope.sps.customer;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
 
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
-    @Query("SELECT c.id FROM Officer c WHERE c.userDetails.id =:uDetailsId")
-    Long getCustomerIdByUserDetailsId(@Param("uDetailsId") Long userDetailsId);
+    boolean existsByUserInformationEmail(String email);
+
+    Optional<Customer> findByUserInformationEmail(@Param("email") String email);
 }

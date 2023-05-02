@@ -1,10 +1,11 @@
 package com.hope.sps.zone;
 
-import com.hope.sps.model.BaseEntity;
 import com.hope.sps.zone.space.Space;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Time;
 import java.util.Set;
@@ -12,25 +13,25 @@ import java.util.Set;
 @Entity
 @Table(name = "zone")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@ToString
-@EqualsAndHashCode(callSuper = true)
-public class Zone extends BaseEntity {
+public class Zone {
 
-    @Column(name = "tag", nullable = false, length = 20,unique = true)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "tag", nullable = false, length = 20, unique = true)
     private String tag;
 
     @Column(name = "title", nullable = false, length = 50)
     private String title;
 
     @Column(name = "fee", nullable = false)
-    @Min(0)
     private Double fee;
 
     @Column(name = "number_of_spaces", nullable = false)
-    @Min(1)
     private Integer numberOfSpaces;
 
     @Column(name = "start_at", nullable = false)
@@ -46,6 +47,17 @@ public class Zone extends BaseEntity {
     @Embedded
     private Location location;
 
+    public void setAddress(String address) {
+        location.setAddress(address);
+    }
+
+    public void setLng(Double lng) {
+        location.setLng(lng);
+    }
+
+    public void setLat(Double lat) {
+        location.setLat(lat);
+    }
 
 
     @Embeddable
@@ -53,8 +65,12 @@ public class Zone extends BaseEntity {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Location {
+
         private String address;
+
         private Double lng;
+
         private Double lat;
+
     }
 }

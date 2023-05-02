@@ -1,11 +1,13 @@
 package com.hope.sps.customer;
 
-import com.hope.sps.UserDetails.UserDetailsImpl;
+import com.hope.sps.UserInformation.UserInformation;
 import com.hope.sps.booking.BookingSession;
-import com.hope.sps.model.BaseEntity;
+import com.hope.sps.customer.car.Car;
+import com.hope.sps.customer.payment.wallet.Wallet;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -13,30 +15,45 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode(callSuper = true)
-public class Customer extends BaseEntity {
+@Data
+public class Customer {
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "customer_id")
-    private Set<BookingSession> bookingHistory;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private UserDetailsImpl userDetails;
+    private UserInformation userInformation;
 
-    private Long phone;
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Wallet wallet;
 
-    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     private BookingSession activeBookingSession;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id")
+    @OrderBy(value = "createdAt DESC")
+    @ToString.Exclude
+    private Set<BookingSession> bookingHistory;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Set<Car> cars;
 
-    public Customer(UserDetailsImpl userDetails, Wallet wallet) {
-        this.userDetails = userDetails;
+    public Customer(UserInformation userInformation, Wallet wallet, String phoneNumber) {
+        this.userInformation = userInformation;
         this.wallet = wallet;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void addCar(final Car car) {
+        if (car == null)
+            cars = new HashSet<>();
+
+        cars.add(car);
     }
 }

@@ -1,11 +1,13 @@
 package com.hope.sps.officer;
 
-import com.hope.sps.UserDetails.UserDetailsImpl;
-import com.hope.sps.model.BaseEntity;
+import com.hope.sps.UserInformation.UserInformation;
 import com.hope.sps.officer.schedule.Schedule;
 import com.hope.sps.zone.Zone;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
@@ -13,26 +15,33 @@ import java.util.Set;
 @Entity
 @Table(name = "officer")
 @Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-@ToString
-@EqualsAndHashCode(callSuper = true)
-public class Officer extends BaseEntity {
+public class Officer {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private UserDetailsImpl userDetails;
+    private UserInformation userInformation;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
 
-    private Long phone;
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "officer_id")
     private Set<Zone> zones;
 
-
-
+    public Officer(UserInformation userInformation, Schedule schedule, String phoneNumber, Set<Zone> zones) {
+        this.userInformation = userInformation;
+        this.schedule = schedule;
+        this.phoneNumber = phoneNumber;
+        this.zones = zones;
+    }
 }

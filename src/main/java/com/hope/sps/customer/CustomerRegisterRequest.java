@@ -1,9 +1,20 @@
 package com.hope.sps.customer;
 
-import com.hope.sps.dto.RegisterRequest;
-import lombok.ToString;
+import com.hope.sps.common.RegisterRequest;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
-@ToString
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CustomerRegisterRequest extends RegisterRequest {
 
+    @Length(min = 10, max = 20, message = "invalid phoneNumber")
+    @NotEmpty(message = "phoneNumber is required")
+    private String phoneNumber;
 }

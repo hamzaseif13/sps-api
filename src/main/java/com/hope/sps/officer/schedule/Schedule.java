@@ -1,10 +1,11 @@
 package com.hope.sps.officer.schedule;
 
-import com.hope.sps.model.BaseEntity;
 import com.hope.sps.officer.OfficerUpdateRequest;
 import jakarta.persistence.*;
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Time;
 import java.time.DayOfWeek;
@@ -18,9 +19,11 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode(callSuper = true)
-public class Schedule extends BaseEntity {
+public class Schedule {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "start_at", nullable = false)
     private Time startsAt;
@@ -34,8 +37,8 @@ public class Schedule extends BaseEntity {
     private Set<DayOfWeek> daysOfWeek = new HashSet<>();
 
     public void setNewData(OfficerUpdateRequest request) {
-        this.startsAt =  request.getStartsAt();
+        this.startsAt = request.getStartsAt();
         this.endsAt = request.getEndsAt();
-        this.daysOfWeek =request.getDaysOfWeek().stream().map(DayOfWeek::valueOf).collect(Collectors.toSet());
+        this.daysOfWeek = request.getDaysOfWeek().stream().map(DayOfWeek::valueOf).collect(Collectors.toSet());
     }
 }

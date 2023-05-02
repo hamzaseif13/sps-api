@@ -1,15 +1,13 @@
 package com.hope.sps.auth;
 
-import com.hope.sps.UserDetails.Role;
-import com.hope.sps.UserDetails.UserDetailsImpl;
-import com.hope.sps.admin.AdminRepository;
-import com.hope.sps.customer.CustomerRepository;
+import com.hope.sps.UserInformation.Role;
+import com.hope.sps.UserInformation.UserInformation;
 import com.hope.sps.jwt.JwtUtils;
-import com.hope.sps.officer.OfficerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,60 +18,56 @@ public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
 
-    private final AdminRepository adminRepository;
+    public AuthenticationResponse authenticate(final LoginRequest request, final String flag) {
+        var authentication = authenticateLoginRequest(request);
 
-    private final OfficerRepository officerRepository;
+        var userInformation = (UserInformation) authentication.getPrincipal();
 
-    private final CustomerRepository customerRepository;
+        verifyAuthTrail(userInformation, flag);
 
-    public AuthenticationResponse authenticateAdmin(LoginRequest request) {
-        var authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.email(),
-                        request.password()
-                )
+        final String token = jwtUtils.generateToken(userInformation);
+
+        return new AuthenticationResponse(
+                userInformation.getEmail(),
+                token,
+                userInformation.getRole(),
+                userInformation.getFirstName(),
+                userInformation.getLastName()
         );
-
-        var userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        throwExceptionIfNonAdmin(userDetails);
-
-        String token = jwtUtils.generateToken(userDetails);
-
-        return new AuthenticationResponse(userDetails.getEmail(), token, userDetails.getRole());
     }
 
-    public AuthenticationResponse authenticateOfficerAndCustomer(LoginRequest request) {
-        var authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.email(),
-                        request.password()
-                )
-        );
-
-        var userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        throwExceptionIfAdmin(userDetails);
-
-        String token = jwtUtils.generateToken(userDetails);
-
-        return new AuthenticationResponse(userDetails.getEmail(), token, userDetails.getRole());
+    private void verifyAuthTrail(final UserInformation userInformation, final String flag) {
+        if (flag.equals("ADMIN"))
+            throwExceptionIfNonAdmin(userInformation);
+        else if (flag.equals("NON_ADMIN"))
+            throwExceptionIfAdmin(userInformation);
     }
 
-    private void throwExceptionIfNonAdmin(UserDetailsImpl userDetails) {
-        boolean isAdmin = isAdminTryingToLogin(userDetails);
+
+    private void throwExceptionIfNonAdmin(final UserInformation userInformation) {
+        boolean isAdmin = isAdminTryingToLogin(userInformation);
 
         if (!isAdmin)
             throw new BadCredentialsException("Officers and customers are not allowed to login here");
     }
 
-    private void throwExceptionIfAdmin(UserDetailsImpl userDetails) {
-        boolean isAdmin = isAdminTryingToLogin(userDetails);
+    private void throwExceptionIfAdmin(final UserInformation userInformation) {
+        boolean isAdmin = isAdminTryingToLogin(userInformation);
 
         if (isAdmin)
             throw new BadCredentialsException("Admins are not allowed to login here");
     }
 
-    private boolean isAdminTryingToLogin(UserDetailsImpl userDetails) {
-        return userDetails.getRole()==Role.ADMIN;
+    private boolean isAdminTryingToLogin(final UserInformation userInformation) {
+        return userInformation.getRole() == Role.ADMIN;
     }
 
+    private Authentication authenticateLoginRequest(final LoginRequest request) {
+        return authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+    }
 }

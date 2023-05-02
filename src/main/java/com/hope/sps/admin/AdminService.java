@@ -1,54 +1,63 @@
 package com.hope.sps.admin;
 
-import com.hope.sps.UserDetails.Role;
-import com.hope.sps.UserDetails.UserDetailsImpl;
-import com.hope.sps.dto.RegisterRequest;
+import com.hope.sps.UserInformation.Role;
+import com.hope.sps.UserInformation.UserInformation;
+import com.hope.sps.common.RegisterRequest;
+import com.hope.sps.exception.DuplicateResourceException;
+import com.hope.sps.exception.InvalidResourceProvidedException;
+import com.hope.sps.exception.ResourceNotFoundException;
+import com.hope.sps.util.Validator;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
 public class AdminService {
 
+    private final AdminRepository adminRepository;
 
     private final PasswordEncoder passwordEncoder;
 
-    private final AdminRepository adminRepository;
+    private final ModelMapper mapper;
 
+    @Transactional(readOnly = true)
+    public List<AdminDTO> getAllAdmins() {
 
-    public Long registerAdmin(RegisterRequest request) {
+        final List<AdminDTO> adminDTOS = new ArrayList<>();
 
-        var adminDetails = getUserDetailsFromRegReq(request);
+        adminRepository.findAll().forEach(admin -> {
+            adminDTOS.add(mapper.map(admin, AdminDTO.class));
+        });
 
+        return adminDTOS;
+    }
+
+    public Long registerAdmin(final RegisterRequest request) {
+        if (adminRepository.existsByUserInformationEmail(request.getEmail()))
+            throw new DuplicateResourceException("email already exists");
+
+        final var adminDetails = mapper.map(request, UserInformation.class);//employeeRegisterRequestMapper.apply(request);
+        adminDetails.setRole(Role.ADMIN);
+
+        if (!request.getPassword().matches(Validator.passwordValidationRegex))
+            throw new InvalidResourceProvidedException("invalid password");
+
+        adminDetails.setPassword(passwordEncoder.encode(request.getPassword()));
         return adminRepository.save(new Admin(adminDetails)).getId();
     }
 
+    public void deleteAdminById(final Long adminId) {
+        if (!adminRepository.existsById(adminId)) {
+            throw new ResourceNotFoundException("could not delete admin with id: {%s}, no admin found".formatted(adminId));
+        }
 
-    private UserDetailsImpl getUserDetailsFromRegReq(RegisterRequest request) {
-        return UserDetailsImpl.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.ADMIN)
-                .build();
-    }
-
-    public List<AdminDto> getAllAdmins() {
-        return adminRepository.findAll().stream().map(this::fromAdmin).collect(Collectors.toList());
-    }
-
-    private AdminDto fromAdmin(Admin admin) {
-        return new AdminDto(admin.getId(), admin.getUserDetails().getFirstName(),
-                admin.getUserDetails().getLastName(), admin.getUserDetails().getEmail());
-    }
-
-    public void deleteAdminById(Long id) {
-        adminRepository.deleteById(id);
+        adminRepository.deleteById(adminId);
     }
 }
