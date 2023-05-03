@@ -5,10 +5,12 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-public final class LoginRequest {
+@NoArgsConstructor
+public class LoginRequest {
 
     @Email(message = "invalid email")
     @NotEmpty(message = "password is mandatory")

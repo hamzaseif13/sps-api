@@ -2,17 +2,15 @@ package com.hope.sps.zone;
 
 import com.hope.sps.zone.space.Space;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Time;
 import java.util.Set;
 
 @Entity
 @Table(name = "zone")
-@Data
+@Setter
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -48,14 +46,23 @@ public class Zone {
     private Location location;
 
     public void setAddress(String address) {
+        if (this.location == null)
+            location = new Location();
+
         location.setAddress(address);
     }
 
     public void setLng(Double lng) {
+        if (this.location == null)
+            location = new Location();
+
         location.setLng(lng);
     }
 
     public void setLat(Double lat) {
+        if (this.location == null)
+            location = new Location();
+
         location.setLat(lat);
     }
 

@@ -1,5 +1,6 @@
 package com.hope.sps.zone;
 
+import com.hope.sps.exception.DuplicateResourceException;
 import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.zone.space.Space;
@@ -9,7 +10,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -27,26 +27,32 @@ public class ZoneService {
 
     @Transactional(readOnly = true)
     public List<ZoneDTO> getAll() {
-        final var zoneDTOs = new ArrayList<ZoneDTO>();
+        final List<Zone> zones = zoneRepository.findAll();
 
-        zoneRepository.findAll().forEach(zone ->
-                zoneDTOs.add(
-                        mapper.map(zone, ZoneDTO.class)
-                ));
-        return zoneDTOs;
+        return zones.stream().map(zone -> {
+            final var zoneDTO = mapper.map(zone, ZoneDTO.class);
+            zoneDTO.setAvailableSpaces(countAvailableSpace(zone));
+            return zoneDTO;
+        }).toList();
     }
+
 
     @Transactional(readOnly = true)
     public ZoneDTO getZoneById(final Long id) {
-        final var zone = zoneRepository.findById(id)
+        final Zone zone = zoneRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Zone with this id not found")
                 );
 
-        return mapper.map(zone, ZoneDTO.class);
+        final var zoneDTO = mapper.map(zone, ZoneDTO.class);
+        zoneDTO.setAvailableSpaces(countAvailableSpace(zone));
+        return zoneDTO;
     }
 
     public Long registerZone(final ZoneRegistrationRequest request) {
+        if (zoneRepository.existsByTag(request.getTag()))
+            throw new DuplicateResourceException("zone with same tag already exists");
+
         if (request.getStartsAt().after(request.getEndsAt()))
             throw new InvalidResourceProvidedException("Start time cant be before end time");
 
@@ -94,4 +100,10 @@ public class ZoneService {
         zoneRepository.deleteById(zoneId);
     }
 
+    private Long countAvailableSpace(final Zone zone) {
+        return zone.getSpaces()
+                .stream()
+                .filter(Space::isAvailable)
+                .count();
+    }
 }

@@ -1,6 +1,7 @@
 package com.hope.sps.zone;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,25 +19,25 @@ public class ZoneRegistrationRequest {
     @NotEmpty(message = "title is required")
     private String title;
 
-    @NotEmpty(message = "fee is required")
+    @NotNull(message = "fee is required")
     private Double fee;
 
     @NotEmpty(message = "address is required")
     private String address;
 
-    @NotEmpty(message = "lng is required")
+    @NotNull(message = "lng is required")
     private Double lng;
 
-    @NotEmpty(message = "lat is required")
+    @NotNull(message = "lat is required")
     private Double lat;
 
-    @NotEmpty(message = "numberOfSpaces is required")
+    @NotNull(message = "numberOfSpaces is required")
     private Integer numberOfSpaces;
 
-    @NotEmpty(message = "startsAt is required")
+    @NotNull(message = "startsAt is required")
     private Time startsAt;
 
-    @NotEmpty(message = "endsAt is required")
+    @NotNull(message = "endsAt is required")
     private Time endsAt;
 
 }

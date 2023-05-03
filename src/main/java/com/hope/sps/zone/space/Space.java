@@ -2,13 +2,12 @@ package com.hope.sps.zone.space;
 
 import com.hope.sps.zone.Zone;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "space")
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Space {
@@ -23,7 +22,7 @@ public class Space {
     @Enumerated(EnumType.STRING)
     private State state = State.AVAILABLE;
 
-    @ManyToOne(cascade = {CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Zone zone;
 
     public Space(Integer number) {
@@ -32,6 +31,11 @@ public class Space {
 
     public Space(Long id) {
         this.id = id;
+    }
+
+    //delete
+    public boolean isAvailable() {
+        return this.state == State.AVAILABLE;
     }
 
     public enum State {
