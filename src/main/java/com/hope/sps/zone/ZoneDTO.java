@@ -1,16 +1,18 @@
 package com.hope.sps.zone;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.hope.sps.zone.space.SpaceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Time;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonPropertyOrder({"id", "tag", "title", "fee", "address", "lng", "lat", "numberOfSpaces", "startsAt", "endsAt", "availableSpaces"})
+@JsonPropertyOrder({"id", "tag", "title", "fee", "address", "lng", "lat", "numberOfSpaces", "startsAt", "endsAt", "availableSpaces","spaceList"})
 public class ZoneDTO {
 
     private Long id;
@@ -33,5 +35,7 @@ public class ZoneDTO {
 
     private Time endsAt;
 
-    private Integer availableSpaces;
+    private Long availableSpaces;
+
+    private List<SpaceDTO> spaceList;
 }

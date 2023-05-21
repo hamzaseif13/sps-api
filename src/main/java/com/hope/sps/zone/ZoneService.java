@@ -4,6 +4,7 @@ import com.hope.sps.exception.DuplicateResourceException;
 import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.zone.space.Space;
+import com.hope.sps.zone.space.SpaceDTO;
 import com.hope.sps.zone.space.SpaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -24,7 +25,6 @@ public class ZoneService {
 
     private final ModelMapper mapper;
 
-
     @Transactional(readOnly = true)
     public List<ZoneDTO> getAll() {
         final List<Zone> zones = zoneRepository.findAll();
@@ -32,6 +32,7 @@ public class ZoneService {
         return zones.stream().map(zone -> {
             final var zoneDTO = mapper.map(zone, ZoneDTO.class);
             zoneDTO.setAvailableSpaces(countAvailableSpace(zone));
+            zoneDTO.setSpaceList(zone.getSpaces().stream().map(space -> mapper.map(space, SpaceDTO.class)).toList());
             return zoneDTO;
         }).toList();
     }
@@ -46,6 +47,7 @@ public class ZoneService {
 
         final var zoneDTO = mapper.map(zone, ZoneDTO.class);
         zoneDTO.setAvailableSpaces(countAvailableSpace(zone));
+        zoneDTO.setSpaceList(zone.getSpaces().stream().map(space -> mapper.map(space, SpaceDTO.class)).toList());
         return zoneDTO;
     }
 
