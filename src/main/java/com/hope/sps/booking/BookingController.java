@@ -58,12 +58,4 @@ public class BookingController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-    //session trigger invalidate end
-
-    //history from newest to oldest
-
-    //add balance for wallet ,int custId, balance int
-
-    //add car
 }

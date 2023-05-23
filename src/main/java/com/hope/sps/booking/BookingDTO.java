@@ -3,6 +3,7 @@ package com.hope.sps.booking;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.hope.sps.customer.car.Car;
 import com.hope.sps.zone.space.Space;
+import com.hope.sps.zone.space.SpaceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,14 +15,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @JsonPropertyOrder({"id", "createdAt", "duration", "space", "car", "state", "extended", "objectState"})
 public class BookingDTO {
-    //i can do better if i have zone tag
+
     private Long id;
 
     private LocalDateTime createdAt;
 
     private Long duration;
 
-    private Space space;
+    private SpaceDTO space;
 
     private Car car;
 

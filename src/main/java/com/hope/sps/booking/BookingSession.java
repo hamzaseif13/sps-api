@@ -35,7 +35,7 @@ public class BookingSession {
     @Column(name = "duration", nullable = false)
     private Long duration;
 
-    @ManyToOne(cascade = {CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = {CascadeType.REFRESH,CascadeType.DETACH,CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Space space;
 
     @ManyToOne(fetch = FetchType.EAGER)

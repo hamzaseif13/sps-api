@@ -43,7 +43,7 @@ public class AdminService {
         if (adminRepository.existsByUserInformationEmail(request.getEmail()))
             throw new DuplicateResourceException("email already exists");
 
-        final var adminDetails = mapper.map(request, UserInformation.class);//employeeRegisterRequestMapper.apply(request);
+        final var adminDetails = mapper.map(request, UserInformation.class);
         adminDetails.setRole(Role.ADMIN);
 
         if (!request.getPassword().matches(Validator.passwordValidationRegex))

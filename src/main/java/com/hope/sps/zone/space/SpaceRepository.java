@@ -5,13 +5,13 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface SpaceRepository extends JpaRepository<Space, Long> {
 
-    @Modifying
-    @Query("UPDATE Space s SET s.state=:state WHERE s.id=:id")
-    void updateSpaceState(@Param("id") Long spaceId, @Param("state") Space.State state);
+    boolean existsByZoneIdAndNumberAndStateIs(@Param("zoneId") Long zoneId, @Param("number") Integer spaceNumber, @Param("state") Space.State state);
 
-    boolean existsByIdAndStateIs(@Param("id") Long spaceId, @Param("state") Space.State state);
+    Optional<Space> findByZoneIdAndNumber(@Param("zoneId") Long zoneId, @Param("spaceNum") Integer spaceNumber);
 
     @Query(value = "delete from space where zone_id =:id ", nativeQuery = true)
     @Modifying
