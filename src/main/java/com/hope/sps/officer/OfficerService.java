@@ -1,12 +1,12 @@
 package com.hope.sps.officer;
 
-import com.hope.sps.UserInformation.Role;
-import com.hope.sps.UserInformation.UserInformation;
-import com.hope.sps.UserInformation.UserRepository;
 import com.hope.sps.exception.DuplicateResourceException;
 import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.officer.schedule.Schedule;
+import com.hope.sps.user_information.Role;
+import com.hope.sps.user_information.UserInformation;
+import com.hope.sps.user_information.UserRepository;
 import com.hope.sps.util.Validator;
 import com.hope.sps.zone.Zone;
 import com.hope.sps.zone.ZoneRepository;

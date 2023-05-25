@@ -1,6 +1,6 @@
 package com.hope.sps.admin;
 
-import com.hope.sps.UserInformation.UserInformation;
+import com.hope.sps.user_information.UserInformation;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

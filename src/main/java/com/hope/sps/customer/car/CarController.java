@@ -1,6 +1,6 @@
 package com.hope.sps.customer.car;
 
-import com.hope.sps.UserInformation.UserInformation;
+import com.hope.sps.user_information.UserInformation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

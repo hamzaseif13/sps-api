@@ -1,8 +1,8 @@
 package com.hope.sps.auth;
 
-import com.hope.sps.UserInformation.Role;
-import com.hope.sps.UserInformation.UserInformation;
 import com.hope.sps.jwt.JwtUtils;
+import com.hope.sps.user_information.Role;
+import com.hope.sps.user_information.UserInformation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,14 +19,22 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse authenticate(final LoginRequest request, final String flag) {
+        // get an authentication object from request's email and request's password
+        // trying to authenticate if fail the exception thrown and caught
         var authentication = authenticateLoginRequest(request);
 
+        // authenticate success, get the userInformation object
         var userInformation = (UserInformation) authentication.getPrincipal();
 
+        // if the request comes from an end point where only ADMIN needed to access (flag string),
+        // then if NON_ADMIN trying to access an exception will be thrown and caught
+        // and vice versa if end point only NON_ADMIN can access
         verifyAuthTrail(userInformation, flag);
 
+        // authentication and authorization success get JWT token
         final String token = jwtUtils.generateToken(userInformation);
 
+        // assemble AuthenticationResponse object for the controller
         return new AuthenticationResponse(
                 userInformation.getEmail(),
                 token,

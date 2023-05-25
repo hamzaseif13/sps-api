@@ -1,13 +1,13 @@
 package com.hope.sps.customer;
 
-import com.hope.sps.UserInformation.Role;
-import com.hope.sps.UserInformation.UserInformation;
 import com.hope.sps.auth.AuthenticationResponse;
 import com.hope.sps.customer.payment.wallet.Wallet;
 import com.hope.sps.exception.DuplicateResourceException;
 import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.jwt.JwtUtils;
+import com.hope.sps.user_information.Role;
+import com.hope.sps.user_information.UserInformation;
 import com.hope.sps.util.Validator;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +54,7 @@ public class CustomerService {
         customerInformation.setRole(Role.CUSTOMER);
         customerInformation.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        final var customerWallet = new Wallet(10.0);
+        final var customerWallet = new Wallet(new BigDecimal("10.0"));
 
         final var customer = new Customer(customerInformation, customerWallet, request.getPhoneNumber());
 

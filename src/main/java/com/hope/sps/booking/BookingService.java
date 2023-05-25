@@ -1,6 +1,5 @@
 package com.hope.sps.booking;
 
-import com.hope.sps.UserInformation.UserInformation;
 import com.hope.sps.customer.Customer;
 import com.hope.sps.customer.CustomerRepository;
 import com.hope.sps.customer.car.Car;
@@ -8,6 +7,8 @@ import com.hope.sps.customer.payment.wallet.Wallet;
 import com.hope.sps.exception.InsufficientWalletBalanceException;
 import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
+import com.hope.sps.user_information.UserInformation;
+import com.hope.sps.zone.ZoneDTO;
 import com.hope.sps.zone.ZoneRepository;
 import com.hope.sps.zone.space.Space;
 import com.hope.sps.zone.space.SpaceRepository;
@@ -17,10 +18,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,26 +37,53 @@ public class BookingService {
     private final ModelMapper mapper;
 
 
+    // returns BookingSessionHistoryDTO represents current booking session with its zone
+    // or last booking session with its zone if no current session exists
+    // for logged-in customer, else empty optional
     @Transactional(readOnly = true)
-    public Optional<BookingDTO> getCurrentBookingSession(final UserInformation userInformation) {
-        final Customer loggedInCustomer = getLoggedInCustomer(userInformation.getEmail());
+    public Optional<BookingSessionHistoryDTO> getCurrentBookingSession(final String userEmail) {
+        // get logged in customer from DB
+        final Customer loggedInCustomer = getLoggedInCustomer(userEmail);
 
-        final BookingDTO bookingDTO;
+        // init BookingSessionHistoryDTO for the controller
+        final BookingSessionHistoryDTO bookingSessionHistoryDTO;
+
+        // get current booking session of logged in customer
         final var currentBookingSession = loggedInCustomer.getActiveBookingSession();
+
+        // get booking session history of logged in customer
         final Set<BookingSession> bookingHistory = loggedInCustomer.getBookingHistory();
 
-        if (currentBookingSession != null) {
-            bookingDTO = mapper.map(currentBookingSession, BookingDTO.class);
-            bookingDTO.setObjectState(BookingState.CURRENT.name());
-        } else if (bookingHistory != null && !bookingHistory.isEmpty()) {
-            bookingDTO = mapper.map(bookingHistory.stream().findFirst().get(), BookingDTO.class);
-            bookingDTO.setObjectState(BookingState.PREVIOUS.name());
-        } else {
+        // if there is no current booking session nor history (or empty history), then return empty optional
+        if (currentBookingSession == null && (bookingHistory == null || bookingHistory.isEmpty())) {
             return Optional.empty();
         }
 
-        return Optional.of(bookingDTO);
+        // if there is a current booking session then, map it to BookingSessionHistoryDTO and return it.
+        // "orElse(null)" will never get executed
+        bookingSessionHistoryDTO = prepareBookingSessionHistoryDTO(
+                Objects.requireNonNullElseGet(
+                        currentBookingSession,
+                        () -> bookingHistory.stream().findFirst().orElse(null))
+        );
+        return Optional.of(bookingSessionHistoryDTO);
     }
+
+    @Transactional(readOnly = true)
+    public List<BookingSessionHistoryDTO> getBookingSessionHistory(final String userEmail) {
+        // get logged in customer from DB
+        final Customer loggedInCustomer = getLoggedInCustomer(userEmail);
+
+        // get booking session history of logged in customer
+        final Set<BookingSession> bookingSessionHistory = loggedInCustomer.getBookingHistory();
+        System.err.println(bookingSessionHistory);
+        if (bookingSessionHistory == null)
+            return Collections.emptyList();
+
+        // for each booking session, map it to BookingSessionHistoryDTO and return all of them as a list.
+        return bookingSessionHistory.stream().map(this::prepareBookingSessionHistoryDTO).toList();
+    }
+
 
     @Transactional
     public void extendCurrentSession(
@@ -65,7 +92,7 @@ public class BookingService {
             final UserInformation userInformation
     ) {
 
-        if (!bookingSessionRepository.existsById(currentSessionId)) {
+        if (!bookingSessionRepository.existsBookingSessionByIdAndStateIs(currentSessionId, BookingSession.State.ACTIVE)) {
             throw new ResourceNotFoundException("there is no active booking session");
         }
 
@@ -75,7 +102,7 @@ public class BookingService {
         final double totalFeeToStrip =
                 getTotalFeeToStrip(request.getZoneId(), customerWallet, request.getDurationInMs() / 60_000);
 
-        customerWallet.setBalance(customerWallet.getBalance() - totalFeeToStrip);
+        customerWallet.setBalance(customerWallet.getBalance().subtract(new BigDecimal(totalFeeToStrip)));
         loggedInCustomer.getActiveBookingSession().setExtended(true);
         loggedInCustomer.getActiveBookingSession().setDuration(request.getDurationInMs());
     }
@@ -113,8 +140,7 @@ public class BookingService {
                 getTotalFeeToStrip(request.getZoneId(), customerWallet, request.getDurationInMs() / 60_000);
 
         spaceToBeBooked.setState(Space.State.TAKEN);
-        customerWallet.setBalance(customerWallet.getBalance() - totalFeeToStrip);
-
+        customerWallet.setBalance(customerWallet.getBalance().subtract(new BigDecimal(totalFeeToStrip)));
         final var createdBookingSession = bookingSessionRepository.save(newBookingSession);
         loggedInCustomer.setActiveBookingSession(createdBookingSession);
 
@@ -153,15 +179,26 @@ public class BookingService {
     ) {
         final double zoneFee = zoneRepository.getFeeById(zoneId);
         final double total = ((double) durationInMinutes / 60) * zoneFee;
-        final double totalAfterStriping = customerWallet.getBalance() - total;
+        final double totalAfterStriping = customerWallet.getBalance().subtract(new BigDecimal(total)).doubleValue();
 
         if (totalAfterStriping < 0)
             throw new InsufficientWalletBalanceException("Insufficient balance please charge your wallet");
         return total;
     }
 
+    /***************** HELPER METHODS *********************/
+
+    // Retrieving Customer by its email, from the DB.
+    // Guarantee to return a customer because only authenticated and authorized customer can reach here
     private Customer getLoggedInCustomer(final String email) {
         return customerRepository.findByUserInformationEmail(email).orElseThrow();
+    }
+
+    // map the booking session with the associated zone to DTOs, prepare the BookingSessionHistoryDTO and return it
+    private BookingSessionHistoryDTO prepareBookingSessionHistoryDTO(final BookingSession currentBookingSession) {
+        final BookingSessionDTO bookingSessionDTO = mapper.map(currentBookingSession, BookingSessionDTO.class);
+        final ZoneDTO zoneDTO = mapper.map(currentBookingSession.getSpace().getZone(), ZoneDTO.class);
+        return new BookingSessionHistoryDTO(bookingSessionDTO, zoneDTO);
     }
 
     private Space getSpaceByZoneIdAndSpaceNumber(final Long zoneId, final Integer spaceNumber) {
@@ -169,9 +206,5 @@ public class BookingService {
                 .orElseThrow(() -> new ResourceNotFoundException("No space found with zoneId: [%d] and spaceNumber: [%d]"
                         .formatted(zoneId, spaceNumber))
                 );
-    }
-
-    enum BookingState {
-        CURRENT, PREVIOUS
     }
 }

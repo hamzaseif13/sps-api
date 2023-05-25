@@ -36,6 +36,13 @@ public class Space {
         this.id = id;
     }
 
+    // for testing purposes
+    public Space(long id, int number, State state) {
+        this.id = id;
+        this.number = number;
+        this.state = state;
+    }
+
     //delete
     public boolean isAvailable() {
         return this.state == State.AVAILABLE;

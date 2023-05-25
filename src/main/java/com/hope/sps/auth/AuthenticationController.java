@@ -15,7 +15,6 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
 
-
     @PostMapping("/login")//admin login, officer and customer not allowed
     public ResponseEntity<AuthenticationResponse> authenticateAdmin(
             @RequestBody @Valid
