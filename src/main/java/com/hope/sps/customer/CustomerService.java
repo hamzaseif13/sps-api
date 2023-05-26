@@ -3,12 +3,10 @@ package com.hope.sps.customer;
 import com.hope.sps.auth.AuthenticationResponse;
 import com.hope.sps.customer.payment.wallet.Wallet;
 import com.hope.sps.exception.DuplicateResourceException;
-import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.jwt.JwtUtils;
 import com.hope.sps.user_information.Role;
 import com.hope.sps.user_information.UserInformation;
-import com.hope.sps.util.Validator;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,8 +45,8 @@ public class CustomerService {
         if (customerRepository.existsByUserInformationEmail(request.getEmail()))
             throw new DuplicateResourceException("email already exists");
 
-        if (!request.getPassword().matches(Validator.passwordValidationRegex))
-            throw new InvalidResourceProvidedException("invalid password");
+//        if (!request.getPassword().matches(Validator.passwordValidationRegex))
+//            throw new InvalidResourceProvidedException("invalid password");
 
         final var customerInformation = mapper.map(request, UserInformation.class);
         customerInformation.setRole(Role.CUSTOMER);
