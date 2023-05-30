@@ -1,6 +1,7 @@
 package com.hope.sps.zone.space;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hope.sps.booking.BookingSession;
 import com.hope.sps.zone.Zone;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,7 +28,7 @@ public class Space {
     private State state = State.AVAILABLE;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore()
+    @JsonIgnore
     private Zone zone;
 
     public Space(Integer number) {
