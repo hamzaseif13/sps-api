@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/officer")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('ADMIN')")
+//@PreAuthorize("hasAuthority('ADMIN')")
 public class OfficerController {
 
     private final OfficerService officerService;
@@ -26,16 +26,6 @@ public class OfficerController {
         return ResponseEntity.ok(officerDTOS);
     }
 
-    @PostMapping
-    public ResponseEntity<Long> register(
-            @RequestBody @Valid
-            OfficerRegisterRequest request
-    ) {
-
-        final Long officerId = officerService.registerOfficer(request);
-        return new ResponseEntity<>(officerId, HttpStatus.CREATED);
-    }
-
     @GetMapping("{officerId}")
     public ResponseEntity<OfficerDTO> getById(
             @PathVariable("officerId")
@@ -44,6 +34,17 @@ public class OfficerController {
 
         final OfficerDTO officerById = officerService.getOfficerById(officerId);
         return ResponseEntity.ok(officerById);
+    }
+
+
+    @PostMapping
+    public ResponseEntity<Long> register(
+            @RequestBody @Valid
+            OfficerRegisterRequest request
+    ) {
+
+        final Long officerId = officerService.registerOfficer(request);
+        return new ResponseEntity<>(officerId, HttpStatus.CREATED);
     }
 
     @PutMapping("{Id}")

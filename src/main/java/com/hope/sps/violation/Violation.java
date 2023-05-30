@@ -20,16 +20,21 @@ public class Violation {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
-
-    @ManyToOne
     @JoinColumn(name = "officer_id")
     private Officer officer;
+
+    @Column(name = "plate_number", nullable = false)
+    private String plateNumber;
+
+    @Column(name = "car_brand", nullable = false)
+    private String carBrand;
+
+    @Column(name = "car_color", nullable = false)
+    private String carColor;
 
     @Column(name = "details", nullable = false)
     private String details;
 
     @Column(name = "image_url", nullable = false)
-    private String imageUrl; //todo add s3 hahah
+    private String imageUrl;
 }

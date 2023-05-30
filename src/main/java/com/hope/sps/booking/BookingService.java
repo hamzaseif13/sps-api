@@ -104,7 +104,7 @@ public class BookingService {
 
         customerWallet.setBalance(customerWallet.getBalance().subtract(new BigDecimal(totalFeeToStrip)));
         loggedInCustomer.getActiveBookingSession().setExtended(true);
-        loggedInCustomer.getActiveBookingSession().setDuration(request.getDurationInMs() + loggedInCustomer.getActiveBookingSession().getDuration());
+        loggedInCustomer.getActiveBookingSession().setDuration(loggedInCustomer.getActiveBookingSession().getDuration() + request.getDurationInMs());
     }
 
     @Transactional
