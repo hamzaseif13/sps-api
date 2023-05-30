@@ -1,7 +1,7 @@
 package com.hope.sps.customer.payment.wallet;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChargeRequest {
 
-    @Min(value = 900000, message = "amountToCharge at least must be 900000, 15 min")
-    @NotNull(message = "amountToCharge is mandatory")
+    @Min(value = 1,message = "Amount To Charge must be between 1 and 10 JOD")
+    @Max(value = 10,message = "Amount To Charge must be between 1 and 10 JOD")
     private Integer amountToCharge;
 }

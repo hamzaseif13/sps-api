@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "wallet")
 @NoArgsConstructor
@@ -17,9 +19,9 @@ public class Wallet {
     private Long id;
 
     @Column(name = "balance", nullable = false, length = 50)
-    private Double balance = 10.0;
+    private BigDecimal balance = new BigDecimal("10.0");
 
-    public Wallet(Double balance) {
+    public Wallet(BigDecimal balance) {
         this.balance = balance;
     }
 }

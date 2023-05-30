@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 @Table(name = "booking_session")
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Setter
+@Getter
 @Builder
 public class BookingSession {
 
@@ -35,13 +36,14 @@ public class BookingSession {
     @Column(name = "duration", nullable = false)
     private Long duration;
 
-    @ManyToOne(cascade = {CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Space space;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Car car;
 
-    @OneToOne(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id")
     @ToString.Exclude
     private Customer customer;
 

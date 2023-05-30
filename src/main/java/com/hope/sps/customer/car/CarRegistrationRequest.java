@@ -19,7 +19,7 @@ public class CarRegistrationRequest {
     @NotNull(message = "car's brand is required")
     private String brand;
 
-    @Length(min = 15, max = 15, message = "invalid plateNumber size")
+    @Length(min = 1, max = 15, message = "invalid plateNumber size")
     @NotNull(message = "car's plateNumber is required")
     private String plateNumber;
 

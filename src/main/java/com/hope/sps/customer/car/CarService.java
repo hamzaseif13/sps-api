@@ -1,9 +1,9 @@
 package com.hope.sps.customer.car;
 
-import com.hope.sps.UserInformation.UserInformation;
 import com.hope.sps.customer.Customer;
 import com.hope.sps.customer.CustomerRepository;
 import com.hope.sps.exception.DuplicateResourceException;
+import com.hope.sps.user_information.UserInformation;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;

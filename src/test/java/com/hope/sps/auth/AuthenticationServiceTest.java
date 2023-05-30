@@ -1,8 +1,8 @@
 package com.hope.sps.auth;
 
-import com.hope.sps.UserInformation.Role;
-import com.hope.sps.UserInformation.UserInformation;
 import com.hope.sps.jwt.JwtUtils;
+import com.hope.sps.user_information.Role;
+import com.hope.sps.user_information.UserInformation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

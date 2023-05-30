@@ -1,8 +1,12 @@
 package com.hope.sps.zone.space;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hope.sps.zone.Zone;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "space")
@@ -23,6 +27,7 @@ public class Space {
     private State state = State.AVAILABLE;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore()
     private Zone zone;
 
     public Space(Integer number) {
@@ -31,6 +36,13 @@ public class Space {
 
     public Space(Long id) {
         this.id = id;
+    }
+
+    // for testing purposes
+    public Space(long id, int number, State state) {
+        this.id = id;
+        this.number = number;
+        this.state = state;
     }
 
     //delete

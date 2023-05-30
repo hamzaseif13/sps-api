@@ -1,4 +1,4 @@
-package com.hope.sps.UserInformation;
+package com.hope.sps.user_information;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -39,6 +39,14 @@ public class UserInformation implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    // for testing purposes
+    public UserInformation(String firstName, String lastName, String email, String password, Role role) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -74,5 +82,4 @@ public class UserInformation implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }
