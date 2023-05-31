@@ -1,11 +1,11 @@
 package com.hope.sps.officer;
 
-import com.hope.sps.UserInformation.Role;
-import com.hope.sps.UserInformation.UserInformation;
-import com.hope.sps.UserInformation.UserRepository;
 import com.hope.sps.exception.DuplicateResourceException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.officer.schedule.Schedule;
+import com.hope.sps.user_information.Role;
+import com.hope.sps.user_information.UserInformation;
+import com.hope.sps.user_information.UserRepository;
 import com.hope.sps.zone.Zone;
 import com.hope.sps.zone.ZoneRepository;
 import com.hope.sps.zone.space.Space;
@@ -33,12 +33,6 @@ import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerServiceTest {
-
-    @Mock
-    private EmployeeRegisterRequestMapper employeeRegisterRequestMapper;
-
-    @Mock
-    private OfficerDTOMapper officerDTOMapper;
 
     @Mock
     private OfficerRepository officerRepository;
@@ -102,9 +96,9 @@ class OfficerServiceTest {
 
         testOfficer = new Officer(
                 1L,
+                "123321",
                 testUserDetails,
                 testSchedule,
-                "123321",
                 testZoneSet
         );
 
@@ -113,9 +107,9 @@ class OfficerServiceTest {
                 testUserDetails.getFirstName(),
                 testUserDetails.getLastName(),
                 testUserDetails.getEmail(),
+                testOfficer.getPhoneNumber(),
                 testOfficer.getSchedule(),
-                testOfficer.getZones(),
-                testOfficer.getPhone()
+                testOfficer.getZones()
         );
 
         testOfficerRegistrationReq = new OfficerRegisterRequest(
@@ -141,9 +135,6 @@ class OfficerServiceTest {
         Mockito.when(officerRepository.findAll())
                 .thenReturn(List.of(testOfficer));
 
-        Mockito.when(officerDTOMapper.apply(testOfficer))
-                .thenReturn(testOfficerDTO);
-
         final List<OfficerDTO> actualOfficerDTOS = underTest.getAll();
 
         assertThatObject(officerDTOS).isEqualTo(actualOfficerDTOS);
@@ -152,9 +143,6 @@ class OfficerServiceTest {
     @Test
     @DisplayName("test registerOfficer(OfficerRegisterRequest request) valid email")
     void testRegisterOfficer_nonExistingEmail_shouldRegisterItAndReturnGeneratedId() {
-
-        Mockito.when(employeeRegisterRequestMapper.apply(testOfficerRegistrationReq))
-                .thenReturn(testUserDetails);
 
         Mockito.when(userRepository.existsByEmail(testOfficerRegistrationReq.getEmail()))
                 .thenReturn(false);
@@ -174,7 +162,7 @@ class OfficerServiceTest {
 
         final var actualOfficer = officerArgumentCaptor.getValue();
         assertThat(actualOfficer.getId()).isNull();
-        assertThat(actualOfficer.getPhone()).isEqualTo(testOfficerRegistrationReq.getPhone());
+        assertThat(actualOfficer.getPhoneNumber()).isEqualTo(testOfficerRegistrationReq.getPhoneNumber());
         assertThat(actualOfficer.getSchedule().getDaysOfWeek()).isEqualTo(testSchedule.getDaysOfWeek());
         assertThat(actualOfficer.getSchedule().getStartsAt()).isEqualTo(testSchedule.getStartsAt());
         assertThat(actualOfficer.getSchedule().getEndsAt()).isEqualTo(testSchedule.getEndsAt());
@@ -184,9 +172,6 @@ class OfficerServiceTest {
     @Test
     @DisplayName("test registerOfficer(OfficerRegisterRequest request) invalid email")
     void testRegisterOfficer_existingEmail_shouldThrowDuplicateResourceException() {
-
-        Mockito.when(employeeRegisterRequestMapper.apply(testOfficerRegistrationReq))
-                .thenReturn(testUserDetails);
 
         Mockito.when(userRepository.existsByEmail(testOfficerRegistrationReq.getEmail()))
                 .thenReturn(true);
@@ -207,9 +192,6 @@ class OfficerServiceTest {
 
         Mockito.when(officerRepository.findById(officerId))
                 .thenReturn(Optional.of(testOfficer));
-
-        Mockito.when(officerDTOMapper.apply(testOfficer))
-                .thenReturn(testOfficerDTO);
 
         final OfficerDTO actual = underTest.getOfficerById(officerId);
         assertThatObject(actual).isEqualTo(testOfficerDTO);

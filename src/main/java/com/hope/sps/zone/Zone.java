@@ -1,5 +1,6 @@
 package com.hope.sps.zone;
 
+import com.hope.sps.officer.Officer;
 import com.hope.sps.zone.space.Space;
 import jakarta.persistence.*;
 import lombok.*;

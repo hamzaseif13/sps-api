@@ -1,4 +1,4 @@
-package com.hope.sps.UserInformation;
+package com.hope.sps.user_information;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

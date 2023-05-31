@@ -1,4 +1,4 @@
-package com.hope.sps.UserInformation;
+package com.hope.sps.user_information;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

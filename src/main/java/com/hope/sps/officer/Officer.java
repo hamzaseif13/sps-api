@@ -1,7 +1,7 @@
 package com.hope.sps.officer;
 
-import com.hope.sps.UserInformation.UserInformation;
 import com.hope.sps.officer.schedule.Schedule;
+import com.hope.sps.user_information.UserInformation;
 import com.hope.sps.zone.Zone;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

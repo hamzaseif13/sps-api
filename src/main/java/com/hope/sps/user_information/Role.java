@@ -1,4 +1,4 @@
-package com.hope.sps.UserInformation;
+package com.hope.sps.user_information;
 
 public enum Role {
     ADMIN, OFFICER, CUSTOMER

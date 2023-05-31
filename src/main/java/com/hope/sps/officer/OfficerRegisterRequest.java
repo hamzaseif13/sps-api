@@ -25,7 +25,6 @@ public class OfficerRegisterRequest extends RegisterRequest {
     @Size(min = 1, message = "officer must be assigned at least one day")
     private List<String> daysOfWeek;
 
-    @Size(min = 1, message = "officer must be assigned at least one zone")
     private List<Long> zoneIds;
 
     @Length(min = 10, max = 20, message = "invalid phoneNumber")
