@@ -149,6 +149,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ExtendedBookingSessionException.class)
+    @ResponseBody
+    protected ResponseEntity<ApiError> extendedBookingSession(
+            ExtendedBookingSessionException ex,
+            HttpServletRequest request
+    ) {
+
+        log.error(ex.getMessage(), ex);
+
+        var apiError = getApiError(ex, HttpStatus.BAD_REQUEST, request);
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseBody
     protected ResponseEntity<ApiError> accessDenied(
@@ -188,9 +201,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(Exception.class)
+    @ResponseBody
+    protected ResponseEntity<ApiError> genericExceptionHandler(
+            Exception ex,
+            HttpServletRequest request
+    ) {
+
+        log.error(ex.getMessage());
+
+        var apiError = getApiError(ex, HttpStatus.INTERNAL_SERVER_ERROR, request);
+        return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     private ApiError getApiError(
-            RuntimeException ex,
+            Exception ex,
             HttpStatus status,
             HttpServletRequest request
     ) {
