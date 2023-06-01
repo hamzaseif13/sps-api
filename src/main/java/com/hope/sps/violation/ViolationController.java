@@ -6,10 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 //@PreAuthorize("hasAuthority('OFFICER')")
@@ -18,6 +17,31 @@ import org.springframework.web.bind.annotation.RestController;
 public class ViolationController {
 
     private final ViolationService violationService;
+
+    @GetMapping
+    public ResponseEntity<List<ViolationDTO>> getAll() {
+
+        final List<ViolationDTO> violationDTOList = violationService.getAllViolations();
+
+        if (violationDTOList.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        return ResponseEntity.ok(violationDTOList);
+    }
+
+    @GetMapping("logged-in")
+    public ResponseEntity<List<ViolationDTO>> getViolationLoggedInOfficer(
+            @AuthenticationPrincipal
+            UserInformation loggedInOfficer
+    ) {
+        final List<ViolationDTO> violationDTOList = violationService.getViolationsByOfficerEmail(loggedInOfficer.getEmail());
+
+        if (violationDTOList.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        return ResponseEntity.ok(violationDTOList);
+
+    }
 
     @PostMapping
     public ResponseEntity<Void> reportViolation(
