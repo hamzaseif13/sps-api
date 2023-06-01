@@ -4,6 +4,7 @@ import com.hope.sps.customer.Customer;
 import com.hope.sps.customer.CustomerRepository;
 import com.hope.sps.customer.car.Car;
 import com.hope.sps.customer.payment.wallet.Wallet;
+import com.hope.sps.exception.ExtendedBookingSessionException;
 import com.hope.sps.exception.InsufficientWalletBalanceException;
 import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
@@ -97,6 +98,10 @@ public class BookingService {
         }
 
         final Customer loggedInCustomer = getLoggedInCustomer(userInformation.getEmail());
+
+        if(loggedInCustomer.getActiveBookingSession().getExtended()) {
+            throw new ExtendedBookingSessionException("this booking session already extended, cannot be extended anymore");
+        }
 
         final var customerWallet = loggedInCustomer.getWallet();
         final double totalFeeToStrip =
