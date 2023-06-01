@@ -1,12 +1,15 @@
 package com.hope.sps.violation;
 
 
-import com.hope.sps.customer.Customer;
 import com.hope.sps.officer.Officer;
+import com.hope.sps.zone.Zone;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "violation")
@@ -37,4 +40,12 @@ public class Violation {
 
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "zone_id")
+    private Zone zone;
 }
