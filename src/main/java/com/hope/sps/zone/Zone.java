@@ -1,6 +1,5 @@
 package com.hope.sps.zone;
 
-import com.hope.sps.officer.Officer;
 import com.hope.sps.zone.space.Space;
 import jakarta.persistence.*;
 import lombok.*;
@@ -45,6 +44,10 @@ public class Zone {
 
     @Embedded
     private Location location;
+
+    public Zone(Long id) {
+        this.id = id;
+    }
 
     public void setAddress(String address) {
         if (this.location == null)

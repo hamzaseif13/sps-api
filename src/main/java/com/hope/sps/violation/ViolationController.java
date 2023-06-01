@@ -23,9 +23,6 @@ public class ViolationController {
 
         final List<ViolationDTO> violationDTOList = violationService.getAllViolations();
 
-        if (violationDTOList.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
         return ResponseEntity.ok(violationDTOList);
     }
 
@@ -35,9 +32,6 @@ public class ViolationController {
             UserInformation loggedInOfficer
     ) {
         final List<ViolationDTO> violationDTOList = violationService.getViolationsByOfficerEmail(loggedInOfficer.getEmail());
-
-        if (violationDTOList.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         return ResponseEntity.ok(violationDTOList);
 
