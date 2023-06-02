@@ -6,11 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.sql.Time;
+import java.time.DayOfWeek;
 import java.util.Set;
 
 @Data
 @AllArgsConstructor
-@JsonPropertyOrder({"startsAt", "endsAt", "zones"})
+@JsonPropertyOrder({"startsAt", "endsAt", "zones","daysOfWeek"})
 public class ScheduleDTO {
 
     private Time startsAt;
@@ -18,4 +19,5 @@ public class ScheduleDTO {
     private Time endsAt;
 
     private Set<Zone> zones;
+    private Set<DayOfWeek> daysOfWeek;
 }

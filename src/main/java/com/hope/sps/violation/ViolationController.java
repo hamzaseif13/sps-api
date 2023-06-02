@@ -3,6 +3,7 @@ package com.hope.sps.violation;
 import com.hope.sps.user_information.UserInformation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,8 @@ public class ViolationController {
     }
 
     @PostMapping
-    public ResponseEntity<Violation> createViolation(@RequestBody @Valid ReportViolationRequest request, @AuthenticationPrincipal UserInformation loggedInOfficer) {
-        return ResponseEntity.ok(violationService.createViolation(request, loggedInOfficer.getEmail()));
+    public ResponseEntity<Void> createViolation(@RequestBody @Valid ReportViolationRequest request, @AuthenticationPrincipal UserInformation loggedInOfficer) {
+        violationService.createViolation(request, loggedInOfficer.getEmail());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

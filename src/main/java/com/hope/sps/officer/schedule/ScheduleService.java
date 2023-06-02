@@ -20,7 +20,7 @@ public class ScheduleService {
         if (officerSchedule == null)
             return Optional.empty();
 
-        final ScheduleDTO scheduleDTO = new ScheduleDTO(officerSchedule.getStartsAt(), officerSchedule.getEndsAt(), loggedInOfficer.getZones());
+        final ScheduleDTO scheduleDTO = new ScheduleDTO(officerSchedule.getStartsAt(), officerSchedule.getEndsAt(), loggedInOfficer.getZones(),officerSchedule.getDaysOfWeek());
         return Optional.of(scheduleDTO);
     }
 

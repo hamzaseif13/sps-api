@@ -49,7 +49,7 @@ public class ViolationService {
     }
 
 
-    public Violation createViolation(ReportViolationRequest request,String officerEmail) {
+    public void createViolation(ReportViolationRequest request,String officerEmail) {
         final Officer loggedInOfficer = getLoggedInOfficer(officerEmail);
 
         final Violation violationToReport = mapper.map(request, Violation.class);
@@ -68,6 +68,6 @@ public class ViolationService {
         );
         violationToReport.setImageUrl(objectKey);
         violationRepository.save(violationToReport);
-        return violationToReport;
+
     }
 }
