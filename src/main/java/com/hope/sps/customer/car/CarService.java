@@ -3,7 +3,6 @@ package com.hope.sps.customer.car;
 import com.hope.sps.customer.Customer;
 import com.hope.sps.customer.CustomerRepository;
 import com.hope.sps.exception.DuplicateResourceException;
-import com.hope.sps.user_information.UserInformation;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -22,37 +22,47 @@ public class CarService {
 
     private final ModelMapper mapper;
 
-    public List<CarDTO> registerNewCar(final UserInformation userInformation, final CarRegistrationRequest request) {
-        if (carRepository.existsByPlateNumber(request.getPlateNumber()))
-            throw new DuplicateResourceException("already exists car's plate number");
+    public List<CarDTO> registerNewCar(final String customerEmail, final CarRegistrationRequest request) {
+        throwExceptionIfExistingPlateNumber(request.getPlateNumber());
 
-        final Customer customer = customerRepository
-                .findByUserInformationEmail(userInformation.getEmail())
-                .orElseThrow();
+        final Customer loggedInCustomer = getLoggedInCustomer(customerEmail);
 
         final var customerCar = mapper.map(request, Car.class);
-        customer.addCar(customerCar);
+        loggedInCustomer.addCar(customerCar);
 
-        final var savedCustomer = customerRepository.save(customer);
+        final var savedCustomer = customerRepository.save(loggedInCustomer);
 
-        return mapCarSetToCarDTOs(savedCustomer);
+        return mapCarSetToCarDTOs(savedCustomer.getCars());
     }
 
     @Transactional(readOnly = true)
-    public List<CarDTO> findAllCars(UserInformation userInformation) {
-        final Customer customer = customerRepository
-                .findByUserInformationEmail(userInformation.getEmail())
-                .orElseThrow();
+    public List<CarDTO> findAllCars(final String customerEmail) {
+        final Customer loggedInCustomer = getLoggedInCustomer(customerEmail);
 
-        return mapCarSetToCarDTOs(customer);
+        return mapCarSetToCarDTOs(loggedInCustomer.getCars());
     }
 
-    private List<CarDTO> mapCarSetToCarDTOs(final Customer customer) {
-        final var carDTOs = new ArrayList<CarDTO>();
+    //*************** HELPER_METHODS ********************//
 
-        customer.getCars().forEach(car ->
-                carDTOs.add(mapper.map(car, CarDTO.class))
+    private void throwExceptionIfExistingPlateNumber(final String plateNumber) {
+        if (carRepository.existsByPlateNumber(plateNumber))
+            throw new DuplicateResourceException("already exists car's plate number");
+    }
+
+    // Note will never throw exception
+    private Customer getLoggedInCustomer(final String customerEmail) {
+        return customerRepository.findByUserInformationEmail(customerEmail)
+                .orElseThrow();
+    }
+
+
+    private List<CarDTO> mapCarSetToCarDTOs(final Set<Car> customerCars) {
+        final var customerCarDTOs = new ArrayList<CarDTO>();
+
+        customerCars.forEach(car ->
+                customerCarDTOs.add(mapper.map(car, CarDTO.class))
         );
-        return carDTOs;
+
+        return customerCarDTOs;
     }
 }
