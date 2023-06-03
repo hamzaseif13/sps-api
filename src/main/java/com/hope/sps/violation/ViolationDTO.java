@@ -2,17 +2,19 @@ package com.hope.sps.violation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.hope.sps.officer.Officer;
 import com.hope.sps.officer.OfficerDTO;
+import com.hope.sps.zone.Zone;
 import com.hope.sps.zone.ZoneDTO;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+
 @AllArgsConstructor
 @NoArgsConstructor
+@Setter
+@Getter
 @JsonPropertyOrder({"id", "plateNumber", "carBrand", "carColor", "details", "imageUrl", "createdAt", "officer", "zone"})
 public class ViolationDTO {
 
@@ -33,5 +35,5 @@ public class ViolationDTO {
 
     private OfficerDTO officer;
 
-    private ZoneDTO zone;
+    private Zone zone;
 }

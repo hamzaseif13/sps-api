@@ -10,6 +10,8 @@ import com.hope.sps.customer.CustomerDTO;
 import com.hope.sps.officer.Officer;
 import com.hope.sps.officer.OfficerDTO;
 import com.hope.sps.user_information.UserDetailsServiceImpl;
+import com.hope.sps.violation.Violation;
+import com.hope.sps.violation.ViolationDTO;
 import com.hope.sps.zone.Zone;
 import com.hope.sps.zone.ZoneDTO;
 import com.hope.sps.zone.ZoneRegistrationRequest;

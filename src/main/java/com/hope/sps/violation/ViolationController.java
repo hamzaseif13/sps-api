@@ -27,6 +27,7 @@ public class ViolationController {
     @GetMapping("logged-in")
     public ResponseEntity<List<ViolationDTO>> getViolationLoggedInOfficer(@AuthenticationPrincipal UserInformation loggedInOfficer) {
         final List<ViolationDTO> violationDTOList = violationService.getViolationsByOfficerEmail(loggedInOfficer.getEmail());
+
         return ResponseEntity.ok(violationDTOList);
     }
 

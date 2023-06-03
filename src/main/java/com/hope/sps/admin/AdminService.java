@@ -28,16 +28,12 @@ public class AdminService {
 
     @Transactional(readOnly = true)
     public List<AdminDTO> getAllAdmins() {
-        // list to contain mapped admin entities to adminDTO objects, needed by the controller
-        final List<AdminDTO> adminDTOS = new ArrayList<>();
 
-        // for each admin entity, map it to adminDTO object and add it to the list
-        adminRepository.findAll()
-                .forEach(admin ->
-                        adminDTOS.add(mapper.map(admin, AdminDTO.class))
-                );
-
-        return adminDTOS;
+        // for each admin entity, map it to adminDTO object
+        return adminRepository.findAll()
+                .stream()
+                .map(admin -> mapper.map(admin, AdminDTO.class))
+                .toList();
     }
 
     @Transactional

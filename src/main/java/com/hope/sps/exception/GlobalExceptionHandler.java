@@ -195,23 +195,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpServletRequest request
     ) {
 
+        System.err.println("xdd");
         log.error(ex.getMessage());
 
         var apiError = getApiError(ex, HttpStatus.FORBIDDEN, request);
         return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseBody
-    protected ResponseEntity<ApiError> handleGenericExceptionHandler(
-            Exception ex,
-            HttpServletRequest request
-    ) {
-
-        log.error(ex.getMessage());
-
-        var apiError = getApiError(ex, HttpStatus.INTERNAL_SERVER_ERROR, request);
-        return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ApiError getApiError(
