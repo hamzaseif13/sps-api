@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/admin")
 @RequiredArgsConstructor
-//@PreAuthorize("hasAuthority('ADMIN')")
+@PreAuthorize("hasAuthority('ADMIN')")
 public class AdminController {
 
     private final AdminService adminService;
@@ -32,8 +33,7 @@ public class AdminController {
 
     @PostMapping
     public ResponseEntity<Long> register(
-            @RequestBody
-            @Valid
+            @RequestBody @Valid
             RegisterRequest request
     ) {
 

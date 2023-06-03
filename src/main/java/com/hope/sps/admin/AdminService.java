@@ -2,9 +2,11 @@ package com.hope.sps.admin;
 
 import com.hope.sps.common.RegisterRequest;
 import com.hope.sps.exception.DuplicateResourceException;
+import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.user_information.Role;
 import com.hope.sps.user_information.UserInformation;
+import com.hope.sps.util.Validator;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,7 +33,10 @@ public class AdminService {
         final List<AdminDTO> adminDTOS = new ArrayList<>();
 
         // for each admin entity, map it to adminDTO object and add it to the list
-        adminRepository.findAll().forEach(admin -> adminDTOS.add(mapper.map(admin, AdminDTO.class)));
+        adminRepository.findAll()
+                .forEach(admin ->
+                        adminDTOS.add(mapper.map(admin, AdminDTO.class))
+                );
 
         return adminDTOS;
     }
@@ -43,8 +48,8 @@ public class AdminService {
             throw new DuplicateResourceException("email already exists");
 
         // not valid password according to validation policy?
-//        if (!request.getPassword().matches(Validator.passwordValidationRegex))
-//            throw new InvalidResourceProvidedException("invalid password");
+        if (!request.getPassword().matches(Validator.passwordValidationRegex))
+            throw new InvalidResourceProvidedException("invalid password");
 
         // here email and password are valid
         // map the RegisterRequest object to UserInformation Object and set role to ADMIN
