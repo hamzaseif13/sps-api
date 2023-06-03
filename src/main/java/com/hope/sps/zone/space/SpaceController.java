@@ -2,11 +2,13 @@ package com.hope.sps.zone.space;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/space")
+@PreAuthorize("hasAuthority('OFFICER')")
 public class SpaceController {
 
     private final SpaceService spaceService;

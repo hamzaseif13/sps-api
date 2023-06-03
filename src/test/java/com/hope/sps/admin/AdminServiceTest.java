@@ -96,7 +96,7 @@ class AdminServiceTest {
     }
 
     @Test
-    @DisplayName("test registerAdmin(RegisterRequest request)")
+    @DisplayName("test registerAdmin(RegisterRequest request) existingEmail")
     void testRegisterAdmin_existingEmail_shouldThrowDuplicateResourceException() {
 
         //Given
@@ -111,7 +111,7 @@ class AdminServiceTest {
     }
 
     @Test
-    @DisplayName("test registerAdmin(RegisterRequest request)")
+    @DisplayName("test registerAdmin(RegisterRequest request) invalidPassword")
     void testRegisterAdmin_invalidPassword_shouldThrowInvalidResourceProvidedException() {
 
         //Given
@@ -148,7 +148,7 @@ class AdminServiceTest {
     }
 
     @Test
-    @DisplayName("test deleteAdminById(Long id)")
+    @DisplayName("test deleteAdminById(Long id) valid id")
     void testDeleteAdminById_validAdminId() {
         final Long testAdminID = 1L;
 
@@ -161,7 +161,7 @@ class AdminServiceTest {
     }
 
     @Test
-    @DisplayName("test deleteAdminById(Long id)")
+    @DisplayName("test deleteAdminById(Long id) invalid id")
     void testDeleteAdminById_invalidAdminId() {
         final Long testAdminID = 1L;
 

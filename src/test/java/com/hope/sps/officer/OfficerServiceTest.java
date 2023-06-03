@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 
 import java.sql.Time;
 import java.time.DayOfWeek;
@@ -45,6 +46,8 @@ class OfficerServiceTest {
 
     @InjectMocks
     private OfficerService underTest;
+
+    private final ModelMapper mapper = new ModelMapper();
 
     private UserInformation testUserDetails;
 

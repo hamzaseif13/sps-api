@@ -1,0 +1,6 @@
+#JDBC
+server:
+  servlet:
+    context-path: /api
+
+

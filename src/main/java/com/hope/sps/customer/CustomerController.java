@@ -20,6 +20,7 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
+    // Only admin can get all customer's information
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public ResponseEntity<List<CustomerDTO>> getAll() {
@@ -30,6 +31,7 @@ public class CustomerController {
         return ResponseEntity.ok(customerDTOs);
     }
 
+    // Only admin can get customer's information
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("{customerId}")
     public ResponseEntity<CustomerDTO> getOne(
@@ -44,8 +46,7 @@ public class CustomerController {
 
     @PostMapping
     public ResponseEntity<AuthenticationResponse> registerCustomer(
-            @RequestBody
-            @Valid
+            @RequestBody @Valid
             CustomerRegisterRequest request) {
 
         final AuthenticationResponse authResp = customerService.registerCustomer(request);

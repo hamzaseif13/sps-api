@@ -1,4 +1,4 @@
-package com.hope.sps.customer.payment.wallet;
+package com.hope.sps.customer.wallet;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;

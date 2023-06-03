@@ -6,9 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
-@Data
+
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @JsonPropertyOrder({"id", "firstName", "lastName", "email", "phoneNumber"})
 public class CustomerDTO {
 

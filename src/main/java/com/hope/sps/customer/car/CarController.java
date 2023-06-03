@@ -24,7 +24,7 @@ public class CarController {
             UserInformation loggedInCustomerInfo
     ) {
 
-        final List<CarDTO> carDTOs = carService.findAllCars(loggedInCustomerInfo);
+        final List<CarDTO> carDTOs = carService.findAllCars(loggedInCustomerInfo.getEmail());
         return ResponseEntity.ok(carDTOs);
     }
 
@@ -36,7 +36,7 @@ public class CarController {
             CarRegistrationRequest request
     ) {
 
-        final List<CarDTO> carDTOs = carService.registerNewCar(loggedInCustomerInfo, request);
+        final List<CarDTO> carDTOs = carService.registerNewCar(loggedInCustomerInfo.getEmail(), request);
         return ResponseEntity.ok(carDTOs);
     }
 }

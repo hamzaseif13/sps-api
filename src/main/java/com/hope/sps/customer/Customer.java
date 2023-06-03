@@ -2,20 +2,23 @@ package com.hope.sps.customer;
 
 import com.hope.sps.booking.BookingSession;
 import com.hope.sps.customer.car.Car;
-import com.hope.sps.customer.payment.wallet.Wallet;
+import com.hope.sps.customer.wallet.Wallet;
 import com.hope.sps.user_information.UserInformation;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "customer")
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Setter
+@Getter
 public class Customer {
 
     @Id
@@ -36,7 +39,6 @@ public class Customer {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "customer")
     @OrderBy(value = "createdAt DESC")
-    @ToString.Exclude
     private Set<BookingSession> bookingHistory;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

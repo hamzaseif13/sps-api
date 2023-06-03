@@ -18,6 +18,11 @@ public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
 
+    // flag parameter can be either ADMIN or NON_ADMIN,
+    // ADMIN: indicating that this method is being called from 'authenticateAdmin method'
+    // so non-admins login requests are ignored.
+    // NON_ADMIN: indicating that this method is being called from 'authenticateOfficerAndCustomer method'
+    // so admin login requests are ignored.
     public AuthenticationResponse authenticate(final LoginRequest request, final String flag) {
         // get an authentication object from request's email and request's password
         // trying to authenticate if fail the exception thrown and caught
@@ -34,16 +39,17 @@ public class AuthenticationService {
         // authentication and authorization success get JWT token
         final String token = jwtUtils.generateToken(userInformation);
 
-        // assemble AuthenticationResponse object for the controller
+        // assemble AuthenticationResponse object for the client, and return it
         return new AuthenticationResponse(
+                userInformation.getFirstName(),
+                userInformation.getLastName(),
                 userInformation.getEmail(),
                 token,
-                userInformation.getRole(),
-                userInformation.getFirstName(),
-                userInformation.getLastName()
+                userInformation.getRole()
         );
     }
 
+    /************ HELPER_METHODS **************/
     private void verifyAuthTrail(final UserInformation userInformation, final String flag) {
         if (flag.equals("ADMIN"))
             throwExceptionIfNonAdmin(userInformation);
