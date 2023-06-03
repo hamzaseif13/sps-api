@@ -15,16 +15,12 @@ import com.hope.sps.zone.space.Space;
 import com.hope.sps.zone.space.SpaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.jpa.repository.Temporal;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalField;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 
 @Service

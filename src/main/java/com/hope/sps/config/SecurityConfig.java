@@ -1,8 +1,6 @@
 package com.hope.sps.config;
 
 import com.hope.sps.jwt.JWTAuthFilter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

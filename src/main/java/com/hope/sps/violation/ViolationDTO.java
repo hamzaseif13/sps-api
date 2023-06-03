@@ -2,11 +2,12 @@ package com.hope.sps.violation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.hope.sps.officer.Officer;
 import com.hope.sps.officer.OfficerDTO;
 import com.hope.sps.zone.Zone;
-import com.hope.sps.zone.ZoneDTO;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 

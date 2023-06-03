@@ -5,7 +5,10 @@ import com.hope.sps.customer.car.Car;
 import com.hope.sps.customer.wallet.Wallet;
 import com.hope.sps.user_information.UserInformation;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;

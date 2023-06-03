@@ -2,8 +2,6 @@ package com.hope.sps.util;
 
 import com.hope.sps.exception.InvalidResourceProvidedException;
 
-import java.util.regex.PatternSyntaxException;
-
 public class Validator {
 
     private static final String passwordValidationRegex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
