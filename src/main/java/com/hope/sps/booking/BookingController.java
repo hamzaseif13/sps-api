@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/booking")
-//@PreAuthorize("hasAuthority('CUSTOMER')")
+@PreAuthorize("hasAuthority('CUSTOMER')")
 public class BookingController {
 
     private final BookingService bookingService;
@@ -57,7 +58,7 @@ public class BookingController {
             @RequestBody @Valid
             BookingSessionRequest request
     ) {
-        final Long id = bookingService.startNewBookingSession(loggedInUser, request);
+        final Long id = bookingService.startNewBookingSession(loggedInUser.getEmail(), request);
 
         return ResponseEntity.ok(id);
     }
