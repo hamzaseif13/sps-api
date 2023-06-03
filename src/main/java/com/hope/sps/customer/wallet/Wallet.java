@@ -1,4 +1,4 @@
-package com.hope.sps.customer.payment.wallet;
+package com.hope.sps.customer.wallet;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,7 +19,7 @@ public class Wallet {
     private Long id;
 
     @Column(name = "balance", nullable = false, length = 50)
-    private BigDecimal balance = new BigDecimal("10.0");
+    private BigDecimal balance;
 
     public Wallet(BigDecimal balance) {
         this.balance = balance;

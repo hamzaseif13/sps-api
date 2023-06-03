@@ -1,9 +1,8 @@
 package com.hope.sps.customer;
 
 import com.hope.sps.auth.AuthenticationResponse;
-import com.hope.sps.customer.payment.wallet.Wallet;
+import com.hope.sps.customer.wallet.Wallet;
 import com.hope.sps.exception.DuplicateResourceException;
-import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.jwt.JwtUtils;
 import com.hope.sps.user_information.Role;

@@ -2,7 +2,7 @@ package com.hope.sps.customer;
 
 import com.hope.sps.booking.BookingSession;
 import com.hope.sps.customer.car.Car;
-import com.hope.sps.customer.payment.wallet.Wallet;
+import com.hope.sps.customer.wallet.Wallet;
 import com.hope.sps.user_information.UserInformation;
 import jakarta.persistence.*;
 import lombok.*;
