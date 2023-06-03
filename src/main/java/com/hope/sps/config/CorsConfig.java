@@ -11,7 +11,7 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-
+    // for now allow all scripts to call our rest apis
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

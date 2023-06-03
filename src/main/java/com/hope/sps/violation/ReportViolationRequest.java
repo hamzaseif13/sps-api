@@ -27,11 +27,11 @@ public class ReportViolationRequest {
     @NotNull(message = "violation details is required")
     private String details;
 
-    @NotNull(message = "image is required")
-    private String imageBase64;// todo this will be ecodedBase64 so i must decode it
+    @NotNull(message = "imageBase64 is required")
+    private String imageBase64;
 
-    @NotNull(message = "image is required")
-    private String imageType;// todo this will be ecodedBase64 so i must decode it
+    @NotNull(message = "imageType is required")
+    private String imageType;
 
     @NotNull(message = "zone is required")
     private Long zoneId;

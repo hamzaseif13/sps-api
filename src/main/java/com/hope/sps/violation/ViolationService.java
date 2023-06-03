@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -21,10 +22,11 @@ public class ViolationService {
     private final OfficerRepository officerRepository;
 
     private final ModelMapper mapper;
+
     private final S3Service s3Service;
 
     @Value("${aws.violationBucket}")
-    private  String violationBucket;
+    private String violationBucket;
 
     public List<ViolationDTO> getAllViolations() {
         return this.violationRepository.findAll()
@@ -43,22 +45,18 @@ public class ViolationService {
                 .toList();
     }
 
-
-    private Officer getLoggedInOfficer(final String officerEmail) {
-        return officerRepository.getOfficerByUserInformationEmail(officerEmail).orElseThrow();
-    }
-
-
-    public void createViolation(ReportViolationRequest request,String officerEmail) {
+    public void createViolation(final ReportViolationRequest request, final String officerEmail) {
         final Officer loggedInOfficer = getLoggedInOfficer(officerEmail);
 
         final Violation violationToReport = mapper.map(request, Violation.class);
+
         violationToReport.setOfficer(loggedInOfficer);
         violationToReport.setZone(new Zone(request.getZoneId()));
-        String random = UUID.randomUUID().toString();
 
-        String objectKey = "violation-" + random + "." + request.getImageType();
-        byte[] imageBytes  =  Base64.getDecoder().decode(request.getImageBase64());
+        final String random = UUID.randomUUID().toString();
+
+        final String objectKey = "violation-" + random + "." + request.getImageType();
+        final byte[] imageBytes = Base64.getDecoder().decode(request.getImageBase64());
 
         s3Service.putObject(
                 violationBucket,
@@ -66,8 +64,13 @@ public class ViolationService {
                 request.getImageType(),
                 imageBytes
         );
-        violationToReport.setImageUrl(objectKey);
-        violationRepository.save(violationToReport);
 
+        violationToReport.setImageUrl(objectKey);
+
+        violationRepository.save(violationToReport);
+    }
+
+    private Officer getLoggedInOfficer(final String officerEmail) {
+        return officerRepository.getOfficerByUserInformationEmail(officerEmail).orElseThrow();
     }
 }

@@ -17,7 +17,6 @@ import java.util.Optional;
 @NoArgsConstructor
 @Setter
 @Getter
-@EqualsAndHashCode
 @ToString
 @Builder
 public class BookingSession {
@@ -70,5 +69,4 @@ public class BookingSession {
     public enum State {
         ARCHIVED, ACTIVE
     }
-
 }

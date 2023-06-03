@@ -14,7 +14,8 @@ import java.util.Set;
 @Table(name = "customer")
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Setter
+@Getter
 public class Customer {
 
     @Id
@@ -35,7 +36,6 @@ public class Customer {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "customer")
     @OrderBy(value = "createdAt DESC")
-    @ToString.Exclude
     private Set<BookingSession> bookingHistory;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

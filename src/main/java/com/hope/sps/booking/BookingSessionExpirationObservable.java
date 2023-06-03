@@ -1,10 +1,13 @@
 package com.hope.sps.booking;
 
+import com.hope.sps.customer.Customer;
 import com.hope.sps.customer.CustomerRepository;
+import com.hope.sps.zone.space.Space;
 import com.hope.sps.zone.space.SpaceRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -30,6 +33,7 @@ public class BookingSessionExpirationObservable {
         // schedule a timer tha is invoking 'notifyBookingSessionObserves() method' after 15 seconds.
         new Timer().schedule(new TimerTask() {
             @Override
+            @Transactional
             public void run() {
                 notifyBookingSessionObserves();
             }
@@ -39,26 +43,37 @@ public class BookingSessionExpirationObservable {
     // iterates over the observers and invoke their signalToInvalidateSession method
 
     public void notifyBookingSessionObserves() {
-        final Iterator<BookingSession> bookingSessionIterator = bookingSessionObservers.iterator();
+        final var invalidatedSessions = new ArrayList<BookingSession>();
 
-        // for each session try to invalidate it, if invalidation success then updated space,session and customer information
-        while (bookingSessionIterator.hasNext()) {
-            final BookingSession session = bookingSessionIterator.next();
-            final BookingSession invalidatedBookingSession = session.invalidateBookingSession()
-                    .orElse(null);
+        // for each session if it invalidated then add it to the invalidatedSessions list
+        for (BookingSession session : bookingSessionObservers) {
+            final Optional<BookingSession> invalidatedBookingSession = session.invalidateBookingSession();
+            System.out.println(session);
 
-            if (invalidatedBookingSession != null) {
-                bookingSessionRepository.save(invalidatedBookingSession);
-                spaceRepository.save(invalidatedBookingSession.getSpace());
-                customerRepository.save(invalidatedBookingSession.getCustomer());
-                bookingSessionIterator.remove();
-            }
+            invalidatedBookingSession.ifPresent(invalidatedSessions::add);
+        }
+
+        // Update all invalidated sessions, spaces, and customers in a single transaction
+        if (!invalidatedSessions.isEmpty()) {
+            bookingSessionRepository.saveAll(invalidatedSessions);
+
+            final List<Space> spacesToUpdate = invalidatedSessions.stream()
+                    .map(BookingSession::getSpace)
+                    .toList();
+            spaceRepository.saveAll(spacesToUpdate);
+
+            final List<Customer> customersToUpdate = invalidatedSessions.stream()
+                    .map(BookingSession::getCustomer)
+                    .toList();
+            customerRepository.saveAll(customersToUpdate);
+
+            // Remove invalidated sessions from the observer list
+            bookingSessionObservers.removeAll(invalidatedSessions);
         }
     }
 
     public void attach(final BookingSession bookingSession) {
-        bookingSessionObservers.removeIf(session1 -> session1.equals(bookingSession));
-        bookingSessionObservers.add(bookingSession);
+        bookingSessionObservers.removeIf(session1 -> session1.getId().equals(bookingSession.getId()));
         this.bookingSessionObservers.add(bookingSession);
     }
 }

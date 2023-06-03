@@ -39,24 +39,20 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
         final String jwt = authHeader.substring(7);
 
-        try {
-            final String userEmail = jwtUtils.extractUsername(jwt);
-            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        final String userEmail = jwtUtils.extractUsername(jwt);
+        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                final UserDetails user = this.userDetailsService.loadUserByUsername(userEmail);
-                if (jwtUtils.isTokenValid(jwt, user)) {
-                    final var authToken = new UsernamePasswordAuthenticationToken(
-                            user,
-                            null,
-                            user.getAuthorities()
-                    );
+            final UserDetails user = this.userDetailsService.loadUserByUsername(userEmail);
+            if (jwtUtils.isTokenValid(jwt, user)) {
+                final var authToken = new UsernamePasswordAuthenticationToken(
+                        user,
+                        null,
+                        user.getAuthorities()
+                );
 
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
-        } catch (ExpiredJwtException exception) {
-            response.setStatus(403);
         }
 
         filterChain.doFilter(request, response);

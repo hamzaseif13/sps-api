@@ -111,7 +111,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(InsufficientWalletBalanceException.class)
     @ResponseBody
-    protected ResponseEntity<ApiError> insufficientWalletBalance(
+    protected ResponseEntity<ApiError> handleInsufficientWalletBalance(
             InsufficientWalletBalanceException ex,
             HttpServletRequest request
     ) {
@@ -125,7 +125,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseBody
-    protected ResponseEntity<ApiError> usernameNotFound(
+    protected ResponseEntity<ApiError> handleUsernameNotFound(
             UsernameNotFoundException ex,
             HttpServletRequest request
     ) {
@@ -138,7 +138,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseBody
-    protected ResponseEntity<ApiError> resourceNotFound(
+    protected ResponseEntity<ApiError> handleResourceNotFound(
             ResourceNotFoundException ex,
             HttpServletRequest request
     ) {
@@ -151,7 +151,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ExtendedBookingSessionException.class)
     @ResponseBody
-    protected ResponseEntity<ApiError> extendedBookingSession(
+    protected ResponseEntity<ApiError> handleExtendedBookingSession(
             ExtendedBookingSessionException ex,
             HttpServletRequest request
     ) {
@@ -164,7 +164,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseBody
-    protected ResponseEntity<ApiError> accessDenied(
+    protected ResponseEntity<ApiError> handleAccessDenied(
             AccessDeniedException ex,
             HttpServletRequest request
     ) {
@@ -177,7 +177,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseBody
-    protected ResponseEntity<ApiError> BadCredentialsException(
+    protected ResponseEntity<ApiError> handleBadCredentialsException(
             BadCredentialsException ex,
             HttpServletRequest request
     ) {
@@ -190,7 +190,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ExpiredJwtException.class)
     @ResponseBody
-    protected ResponseEntity<ApiError> expiredJwt(
+    protected ResponseEntity<ApiError> handleExpiredJwt(
             ExpiredJwtException ex,
             HttpServletRequest request
     ) {
@@ -203,7 +203,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseBody
-    protected ResponseEntity<ApiError> genericExceptionHandler(
+    protected ResponseEntity<ApiError> handleGenericExceptionHandler(
             Exception ex,
             HttpServletRequest request
     ) {
