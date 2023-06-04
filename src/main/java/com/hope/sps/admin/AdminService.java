@@ -2,6 +2,7 @@ package com.hope.sps.admin;
 
 import com.hope.sps.common.RegisterRequest;
 import com.hope.sps.exception.DuplicateResourceException;
+import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.user_information.Role;
 import com.hope.sps.user_information.UserInformation;
@@ -56,9 +57,16 @@ public class AdminService {
     }
 
     @Transactional
-    public void deleteAdminById(final Long adminId) {
+    public void deleteAdminById(final Long adminId, final String loggedInAdminEmail) {
         // invalid id provided ?
         throwExceptionIfAdminIdNotExisting(adminId);
+
+        // get logged in admin
+        final Admin loggedInAdmin = getLoggedInAdmin(loggedInAdminEmail);
+
+        // is admin trying to delete him self?
+        if (loggedInAdmin.getId().equals(adminId))
+            throw new InvalidResourceProvidedException("an logged in admin cannot delete him self");
 
         // delete the admin form the database
         adminRepository.deleteById(adminId);
@@ -77,5 +85,10 @@ public class AdminService {
                     "could not delete admin with id: {%s}, no admin found".formatted(adminId)
             );
         }
+    }
+
+    // will never throw exception, here the admin is authenticated and authorized
+    private Admin getLoggedInAdmin(final String loggedInAdminEmail) {
+        return adminRepository.findByUserInformationEmail(loggedInAdminEmail).orElseThrow();
     }
 }

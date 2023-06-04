@@ -2,12 +2,14 @@ package com.hope.sps.admin;
 
 
 import com.hope.sps.common.RegisterRequest;
+import com.hope.sps.user_information.UserInformation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,10 +47,12 @@ public class AdminController {
     public ResponseEntity<Void> deleteById(
             @PathVariable("adminId")
             @Validated @Positive
-            Long adminId
+            Long adminId,
+            @AuthenticationPrincipal
+            UserInformation loggedInAdmin
     ) {
 
-        adminService.deleteAdminById(adminId);
+        adminService.deleteAdminById(adminId,loggedInAdmin.getEmail());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
