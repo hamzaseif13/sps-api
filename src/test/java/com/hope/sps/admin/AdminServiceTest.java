@@ -155,7 +155,7 @@ class AdminServiceTest {
         Mockito.when(adminRepository.existsById(any()))
                 .thenReturn(true);
 
-        underTest.deleteAdminById(testAdminID);
+        underTest.deleteAdminById(testAdminID, loggedInAdmin.getEmail());
 
         Mockito.verify(adminRepository).deleteById(testAdminID);
     }
@@ -169,6 +169,6 @@ class AdminServiceTest {
                 .thenReturn(false);
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(()-> underTest.deleteAdminById(testAdminID));
+                .isThrownBy(()-> underTest.deleteAdminById(testAdminID, loggedInAdmin.getEmail()));
     }
 }

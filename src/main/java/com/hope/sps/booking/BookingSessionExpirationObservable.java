@@ -1,7 +1,5 @@
 package com.hope.sps.booking;
 
-import com.hope.sps.customer.CustomerRepository;
-import com.hope.sps.zone.space.SpaceRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

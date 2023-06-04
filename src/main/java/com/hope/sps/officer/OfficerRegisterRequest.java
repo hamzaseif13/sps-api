@@ -1,7 +1,6 @@
 package com.hope.sps.officer;
 
 import com.hope.sps.common.RegisterRequest;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,7 +27,6 @@ public class OfficerRegisterRequest extends RegisterRequest {
     private List<Long> zoneIds;
 
     @Length(min = 10, max = 20, message = "invalid phoneNumber")
-    @NotEmpty(message = "phoneNumber is required")
     private String phoneNumber;
 
     public OfficerRegisterRequest(String firstName, String lastName, String email, String password, Time startsAt, Time endsAt, List<String> daysOfWeek, List<Long> zoneIds, String phoneNumber) {

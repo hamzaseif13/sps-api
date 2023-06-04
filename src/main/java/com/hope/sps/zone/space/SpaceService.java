@@ -16,7 +16,11 @@ public class SpaceService {
 
     public SpaceAvailabilityResponse checkAvailability(final SpaceAvailabilityRequest request) {
 
-        if (spaceRepository.existsByZoneIdAndNumberAndStateIs(request.zoneId(), request.spaceNumber(), Space.State.AVAILABLE)) {
+        if (spaceRepository.existsByZoneIdAndNumberAndStateIs(
+                request.zoneId(),
+                request.spaceNumber(),
+                Space.State.AVAILABLE)
+        ) {
             return new SpaceAvailabilityResponse(true, "space available");
         }
 
@@ -34,7 +38,8 @@ public class SpaceService {
         final BookingSession customerActiveBookingSession = occupiedSpaceCustomer.getActiveBookingSession();
 
         return new OccupiedSpaceDTO(
-                customerName,customerActiveBookingSession.getCar().getBrand(),
+                customerName,
+                customerActiveBookingSession.getCar().getBrand(),
                 customerActiveBookingSession.getCar().getColor(),
                 customerActiveBookingSession.getCreatedAt(),
                 customerActiveBookingSession.getDuration(),

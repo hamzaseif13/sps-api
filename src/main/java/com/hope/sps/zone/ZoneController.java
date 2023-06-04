@@ -20,7 +20,7 @@ public class ZoneController {
     @GetMapping
     public ResponseEntity<List<ZoneDTO>> getAll() {
 
-        final List<ZoneDTO> allZones = zoneService.getAll();
+        final var allZones = zoneService.getAll();
         return ResponseEntity.ok(allZones);
     }
 

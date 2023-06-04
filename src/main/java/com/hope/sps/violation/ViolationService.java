@@ -36,28 +36,33 @@ public class ViolationService {
     }
 
     public List<ViolationDTO> getViolationsByOfficerEmail(final String officerEmail) {
-
-        final Officer loggedInOfficer = getLoggedInOfficer(officerEmail);
-
-        return this.violationRepository.findByOfficerId(loggedInOfficer.getId())
+        return this.violationRepository
+                .findByOfficerUserInformationEmail(officerEmail)
                 .stream()
                 .map(violation -> mapper.map(violation, ViolationDTO.class))
                 .toList();
     }
 
     public void createViolation(final ReportViolationRequest request, final String officerEmail) {
+
+        // get loggedInOfficer
         final Officer loggedInOfficer = getLoggedInOfficer(officerEmail);
 
+        // get violation object from ReportViolationRequest object
         final Violation violationToReport = mapper.map(request, Violation.class);
 
+        //assign the officer and the zone to the violation
         violationToReport.setOfficer(loggedInOfficer);
         violationToReport.setZone(new Zone(request.getZoneId()));
 
+        // prepare violation image name
         final String random = UUID.randomUUID().toString();
-
         final String objectKey = "violation-" + random + "." + request.getImageType();
+
+        // decode the actual image
         final byte[] imageBytes = Base64.getDecoder().decode(request.getImageBase64());
 
+        // save the image on s3
         s3Service.putObject(
                 violationBucket,
                 objectKey,
@@ -65,11 +70,13 @@ public class ViolationService {
                 imageBytes
         );
 
+        // update violation's image url
         violationToReport.setImageUrl(objectKey);
 
         violationRepository.save(violationToReport);
     }
 
+    // .orElseThrow(); will never get executed
     private Officer getLoggedInOfficer(final String officerEmail) {
         return officerRepository.getOfficerByUserInformationEmail(officerEmail).orElseThrow();
     }

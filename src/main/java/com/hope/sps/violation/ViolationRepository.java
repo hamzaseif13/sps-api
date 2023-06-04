@@ -9,5 +9,7 @@ import java.util.List;
 @Repository
 public interface ViolationRepository extends JpaRepository<Violation, Long> {
 
+    List<Violation> findByOfficerUserInformationEmail(@Param("email") final String email);
+
     List<Violation> findByOfficerId(@Param("OfficerId") Long officerId);
 }

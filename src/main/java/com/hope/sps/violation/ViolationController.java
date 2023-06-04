@@ -25,14 +25,23 @@ public class ViolationController {
     }
 
     @GetMapping("logged-in")
-    public ResponseEntity<List<ViolationDTO>> getViolationLoggedInOfficer(@AuthenticationPrincipal UserInformation loggedInOfficer) {
-        final List<ViolationDTO> violationDTOList = violationService.getViolationsByOfficerEmail(loggedInOfficer.getEmail());
+    public ResponseEntity<List<ViolationDTO>> getViolationLoggedInOfficer(
+            @AuthenticationPrincipal
+            UserInformation loggedInOfficer
+    ) {
+        final var violationDTOList = violationService
+                .getViolationsByOfficerEmail(loggedInOfficer.getEmail());
 
         return ResponseEntity.ok(violationDTOList);
     }
 
     @PostMapping
-    public ResponseEntity<Void> createViolation(@RequestBody @Valid ReportViolationRequest request, @AuthenticationPrincipal UserInformation loggedInOfficer) {
+    public ResponseEntity<Void> createViolation(
+            @RequestBody @Valid
+            ReportViolationRequest request,
+            @AuthenticationPrincipal
+            UserInformation loggedInOfficer
+    ) {
         violationService.createViolation(request, loggedInOfficer.getEmail());
         return new ResponseEntity<>(HttpStatus.OK);
     }

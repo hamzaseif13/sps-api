@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Time;
 import java.time.DayOfWeek;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,13 +38,18 @@ public class OfficerService {
 
     @Transactional(readOnly = true)
     public List<OfficerDTO> getAll() {
-        final var officerDTOs = new ArrayList<OfficerDTO>();
+        return officerRepository.findAll()
+                .stream()
+                .map(officer -> mapper.map(officer, OfficerDTO.class))
+                .toList();
+    }
 
-        officerRepository.findAll().forEach(officer ->
-                officerDTOs.add(
-                        mapper.map(officer, OfficerDTO.class)
-                ));
-        return officerDTOs;
+    @Transactional(readOnly = true)
+    public OfficerDTO getOfficerById(final Long officerId) {
+
+        final var officer = getOfficerByIdFromDB(officerId);
+
+        return mapper.map(officer, OfficerDTO.class);
     }
 
     @Transactional
@@ -68,16 +72,7 @@ public class OfficerService {
         userInformation.setPassword(passwordEncoder.encode(userInformation.getPassword()));
 
         // generate officerSchedule
-        final var officerSchedule = Schedule.builder()
-                .daysOfWeek(
-                        request.getDaysOfWeek()
-                                .stream()
-                                .map(DayOfWeek::valueOf)
-                                .collect(Collectors.toSet())
-                ).
-                startsAt(request.getStartsAt()).
-                endsAt(request.getEndsAt()).
-                build();
+        final var officerSchedule = assempleOfficerSchedule(request);
 
         // get all zones that officer responsible for
         final List<Zone> zonesByIds = zoneRepository.findAllById(request.getZoneIds());
@@ -92,7 +87,6 @@ public class OfficerService {
 
         return officerRepository.save(officer).getId();
     }
-
 
     @Transactional
     public void updateOfficer(final OfficerUpdateRequest request, final Long officerId) {
@@ -114,20 +108,13 @@ public class OfficerService {
         officerRepository.save(toUpdateOfficer);
     }
 
-
-    @Transactional(readOnly = true)
-    public OfficerDTO getOfficerById(final Long officerId) {
-
-        final var officer = getOfficerByIdFromDB(officerId);
-
-        return mapper.map(officer, OfficerDTO.class);
-    }
-
     public void deleteOfficerById(final Long officerId) {
         if (!officerRepository.existsById(officerId)) {
-            throw new ResourceNotFoundException("could not delete officer with id: {%s}, no officer found".formatted(officerId));
-        }
+            throw new ResourceNotFoundException(
+                    "could not delete officer with id: {%s}, no officer found".formatted(officerId)
+            );
 
+        }
         officerRepository.deleteById(officerId);
     }
 
@@ -149,5 +136,18 @@ public class OfficerService {
                 orElseThrow(() ->
                         new ResourceNotFoundException("could not found officer with id: {%s}".formatted(officerId))
                 );
+    }
+
+    private Schedule assempleOfficerSchedule(final OfficerRegisterRequest request) {
+        return Schedule.builder()
+                .daysOfWeek(
+                        request.getDaysOfWeek()
+                                .stream()
+                                .map(DayOfWeek::valueOf)
+                                .collect(Collectors.toSet())
+                )
+                .startsAt(request.getStartsAt())
+                .endsAt(request.getEndsAt())
+                .build();
     }
 }

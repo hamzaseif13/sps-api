@@ -11,7 +11,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Time;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -27,67 +29,56 @@ public class ZoneService {
 
     @Transactional(readOnly = true)
     public List<ZoneDTO> getAll() {
-        final List<Zone> zones = zoneRepository.findAll();
-
-        return zones.stream().map(zone -> {
-            final var zoneDTO = mapper.map(zone, ZoneDTO.class);
-            zoneDTO.setAvailableSpaces(countAvailableSpace(zone));
-            zoneDTO.setSpaceList(zone.getSpaces().stream().map(space -> mapper.map(space, SpaceDTO.class)).toList());
-            return zoneDTO;
-        }).toList();
+        // foreach zone maps it to zoneDTO, set AvailableSpaces number, and map their spaces to spaceDTO
+        return zoneRepository.findAll()
+                .stream()
+                .map(zone -> {
+                    final var zoneDTO = mapper.map(zone, ZoneDTO.class);
+                    zoneDTO.setAvailableSpaces(countAvailableSpace(zone));
+                    zoneDTO.setSpaceList(getSpaceListDTO(zone));
+                    return zoneDTO;
+                })
+                .toList();
     }
 
 
     @Transactional(readOnly = true)
     public ZoneDTO getZoneById(final Long id) {
-        final Zone zone = zoneRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Zone with this id not found")
-                );
+        final var zone = getZoneByIdFromDB(id);
 
         final var zoneDTO = mapper.map(zone, ZoneDTO.class);
         zoneDTO.setAvailableSpaces(countAvailableSpace(zone));
-        zoneDTO.setSpaceList(zone.getSpaces().stream().map(space -> mapper.map(space, SpaceDTO.class)).toList());
+        zoneDTO.setSpaceList(getSpaceListDTO(zone));
         return zoneDTO;
     }
 
     public Long registerZone(final ZoneRegistrationRequest request) {
-        if (zoneRepository.existsByTag(request.getTag()))
-            throw new DuplicateResourceException("zone with same tag already exists");
 
-        if (request.getStartsAt().after(request.getEndsAt()))
-            throw new InvalidResourceProvidedException("Start time cant be before end time");
+        // there is already zone with same tag?
+        throwExceptionIfZoneAlreadyExistsSameTag(request.getTag());
+
+        // is starts-at time before ends-at time?
+        throwExceptionIfZoneActiveTimeIsInvalid(request.getStartsAt(), request.getEndsAt());
 
         final var toRegisterZone = mapper.map(request, Zone.class);
-        toRegisterZone.setSpaces(
-                IntStream
-                        .rangeClosed(1, toRegisterZone.getNumberOfSpaces())
-                        .mapToObj(Space::new)
-                        .collect(Collectors.toSet()));
+
+        // generate sequential spaces with its number starting from 1 to numberOfSpaces
+        toRegisterZone.setSpaces(getSequentialNumberedSpaces(request.getNumberOfSpaces()));
+
         return zoneRepository.save(toRegisterZone).getId();
     }
 
     @Transactional
     public void updateZone(final Long zoneId, final ZoneUpdateRequest request) {
-        final var zone = zoneRepository
-                .findById(zoneId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("could not found zone with id: %d".formatted(zoneId))
-                );
 
-        if (request.getStartsAt().after(request.getEndsAt()))
-            throw new InvalidResourceProvidedException("Start time cant be before end time");
+        final var zone = getZoneByIdFromDB(zoneId);
 
-        final Integer numberOfSpaces = request.getNumberOfSpaces();
-        if (numberOfSpaces != null && !zone.getNumberOfSpaces().equals(numberOfSpaces)) {
+        throwExceptionIfZoneActiveTimeIsInvalid(request.getStartsAt(), request.getEndsAt());
+
+        // if the number of spaces is updated, generate spaces with new number
+        if (!zone.getNumberOfSpaces().equals(request.getNumberOfSpaces())) {
             spaceRepository.removeAllByZoneId(zoneId);
-            zone.setSpaces(
-                    IntStream
-                            .rangeClosed(1, numberOfSpaces)
-                            .mapToObj(Space::new)
-                            .collect(Collectors.toSet()));
-
-            zone.setNumberOfSpaces(numberOfSpaces);
+            zone.setSpaces(getSequentialNumberedSpaces(request.getNumberOfSpaces()));
         }
 
         zone.setFee(request.getFee());
@@ -102,10 +93,42 @@ public class ZoneService {
         zoneRepository.deleteById(zoneId);
     }
 
+    /**********HELPER_METHODS*************/
     private Long countAvailableSpace(final Zone zone) {
         return zone.getSpaces()
                 .stream()
                 .filter(Space::isAvailable)
                 .count();
+    }
+
+    private List<SpaceDTO> getSpaceListDTO(final Zone zone) {
+        return zone.getSpaces()
+                .stream()
+                .map(space -> mapper.map(space, SpaceDTO.class))
+                .toList();
+    }
+
+    private Zone getZoneByIdFromDB(final Long zoneId) {
+        return zoneRepository.findById(zoneId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Zone with this id not found")
+                );
+    }
+
+    private void throwExceptionIfZoneAlreadyExistsSameTag(final String zoneTag) {
+        if (zoneRepository.existsByTag(zoneTag))
+            throw new DuplicateResourceException("zone with same tag already exists");
+    }
+
+    private void throwExceptionIfZoneActiveTimeIsInvalid(final Time startsAt, final Time endsAt) {
+        if (startsAt.after(endsAt))
+            throw new InvalidResourceProvidedException("Start time cant be before end time");
+    }
+
+    private Set<Space> getSequentialNumberedSpaces(final int spacesMaxNumber) {
+        return IntStream
+                .rangeClosed(1, spacesMaxNumber)
+                .mapToObj(Space::new)
+                .collect(Collectors.toSet());
     }
 }

@@ -23,7 +23,7 @@ public class OfficerController {
     @GetMapping
     public ResponseEntity<List<OfficerDTO>> getAll() {
 
-        final List<OfficerDTO> officerDTOS = officerService.getAll();
+        final var officerDTOS = officerService.getAll();
         return ResponseEntity.ok(officerDTOS);
     }
 
@@ -31,9 +31,10 @@ public class OfficerController {
     public ResponseEntity<OfficerDTO> getById(
             @PathVariable("officerId")
             @Validated @Positive
-            Long officerId) {
+            Long officerId
+    ) {
 
-        final OfficerDTO officerById = officerService.getOfficerById(officerId);
+        final var officerById = officerService.getOfficerById(officerId);
         return ResponseEntity.ok(officerById);
     }
 
