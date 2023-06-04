@@ -41,13 +41,13 @@ public class BookingSession {
     @Column(name = "duration", nullable = false)
     private Long duration;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST})
     private Space space;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Car car;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "customer_id")
     @ToString.Exclude
     private Customer customer;

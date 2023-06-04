@@ -1,8 +1,6 @@
 package com.hope.sps.booking;
 
-import com.hope.sps.customer.Customer;
 import com.hope.sps.customer.CustomerRepository;
-import com.hope.sps.zone.space.Space;
 import com.hope.sps.zone.space.SpaceRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +16,6 @@ public class BookingSessionExpirationObservable {
     private final List<BookingSession> bookingSessionObservers = new ArrayList<>();
 
     private final BookingSessionRepository bookingSessionRepository;
-
-    private final SpaceRepository spaceRepository;
-
-    private final CustomerRepository customerRepository;
 
     @PostConstruct
     protected void init() {
@@ -43,36 +37,21 @@ public class BookingSessionExpirationObservable {
     // iterates over the observers and invoke their signalToInvalidateSession method
 
     public void notifyBookingSessionObserves() {
-        final var invalidatedSessions = new ArrayList<BookingSession>();
-
-        // for each session if it invalidated then add it to the invalidatedSessions list
-        for (BookingSession session : bookingSessionObservers) {
-            final Optional<BookingSession> invalidatedBookingSession = session.invalidateBookingSession();
-            System.out.println(session);
-
-            invalidatedBookingSession.ifPresent(invalidatedSessions::add);
-        }
-
-        // Update all invalidated sessions, spaces, and customers in a single transaction
-        if (!invalidatedSessions.isEmpty()) {
-            bookingSessionRepository.saveAll(invalidatedSessions);
-
-            final List<Space> spacesToUpdate = invalidatedSessions.stream()
-                    .map(BookingSession::getSpace)
-                    .toList();
-            spaceRepository.saveAll(spacesToUpdate);
-
-            final List<Customer> customersToUpdate = invalidatedSessions.stream()
-                    .map(BookingSession::getCustomer)
-                    .toList();
-            customerRepository.saveAll(customersToUpdate);
-
-            // Remove invalidated sessions from the observer list
-            bookingSessionObservers.removeAll(invalidatedSessions);
-        }
+        // every 15s
+        // for each session invokes it's invalidateBookingSession() method,
+        // if it returns not empty Optional means
+        // that it invalidated, and we should update it's state in the db,
+        // and remove it from the bookingSessionObservers list.
+        // else if it returns empty Optional means it is not invalidated, and we should ignore it
+        bookingSessionObservers.removeIf(session -> {
+            final Optional<BookingSession> invalidatedSession = session.invalidateBookingSession();
+            invalidatedSession.ifPresent(bookingSessionRepository::save);
+            return invalidatedSession.isPresent();
+        });
     }
 
     public void attach(final BookingSession bookingSession) {
+        // if to attach booking session not in the list (new one), then add it, else replace it
         bookingSessionObservers.removeIf(session1 -> session1.getId().equals(bookingSession.getId()));
         this.bookingSessionObservers.add(bookingSession);
     }

@@ -155,7 +155,7 @@ public class BookingService {
         // assemble new booking session to be persisted
         final var newBookingSession = BookingSession.builder()
                 .car(new Car(request.getCarId()))
-                .space(new Space(spaceToBeBooked.getId()))
+                .space(spaceToBeBooked)
                 .duration(request.getDurationInMs())
                 .extended(false)
                 .state(BookingSession.State.ACTIVE)
