@@ -24,6 +24,8 @@ public class AdminService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final Validator validator;
+
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
@@ -42,7 +44,7 @@ public class AdminService {
         throwExceptionIfExistingEmail(request.getEmail());
 
         // not valid password according to validation policy?
-        Validator.validateUserPassword(request.getPassword());
+        throwExceptionIfThePasswordIsNotValid(request.getPassword());
 
         // here email and password are valid
         // map the RegisterRequest object to UserInformation Object and set role to ADMIN
@@ -88,7 +90,14 @@ public class AdminService {
     }
 
     // will never throw exception, here the admin is authenticated and authorized
+
     private Admin getLoggedInAdmin(final String loggedInAdminEmail) {
         return adminRepository.findByUserInformationEmail(loggedInAdminEmail).orElseThrow();
+    }
+
+    private void throwExceptionIfThePasswordIsNotValid(final String password) {
+        if (!validator.validateUserPassword(password)) {
+            throw new InvalidResourceProvidedException("invalid password");
+        }
     }
 }

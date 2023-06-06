@@ -3,6 +3,7 @@ package com.hope.sps.customer;
 import com.hope.sps.auth.AuthenticationResponse;
 import com.hope.sps.customer.wallet.Wallet;
 import com.hope.sps.exception.DuplicateResourceException;
+import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.jwt.JwtUtils;
 import com.hope.sps.user_information.Role;
@@ -26,6 +27,8 @@ public class CustomerService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final Validator validator;
+
     private final JwtUtils jwtUtils;
 
     private final ModelMapper mapper;
@@ -47,7 +50,7 @@ public class CustomerService {
         throwExceptionIfExistingEmail(request.getEmail());
 
         // not valid password according to validation policy?
-        Validator.validateUserPassword(request.getPassword());
+        throwExceptionIfThePasswordIsNotValid(request.getPassword());
 
         // here email and password are valid
         // map the CustomerRegisterRequest object to UserInformation Object and set role to CUSTOMER
@@ -93,5 +96,11 @@ public class CustomerService {
     private void throwExceptionIfExistingEmail(final String customerEmail) {
         if (customerRepository.existsByUserInformationEmail(customerEmail))
             throw new DuplicateResourceException("email already exists");
+    }
+
+    private void throwExceptionIfThePasswordIsNotValid(final String password) {
+        if (!validator.validateUserPassword(password)) {
+            throw new InvalidResourceProvidedException("invalid password");
+        }
     }
 }

@@ -52,7 +52,7 @@ public class AdminController {
             UserInformation loggedInAdmin
     ) {
 
-        adminService.deleteAdminById(adminId,loggedInAdmin.getEmail());
+        adminService.deleteAdminById(adminId, loggedInAdmin.getEmail());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

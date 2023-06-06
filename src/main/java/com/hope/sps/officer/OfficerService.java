@@ -34,6 +34,8 @@ public class OfficerService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final Validator validator;
+
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
@@ -62,7 +64,7 @@ public class OfficerService {
         throwExceptionIfEmailAlreadyExists(userInformation.getEmail());
 
         // password invalid? throw exception
-        Validator.validateUserPassword(request.getPassword());
+        throwExceptionIfThePasswordIsNotValid(request.getPassword());
 
         // end time before start time? throw exception
         throwExceptionIfInvalidScheduleTime(request.getStartsAt(), request.getEndsAt());
@@ -149,5 +151,11 @@ public class OfficerService {
                 .startsAt(request.getStartsAt())
                 .endsAt(request.getEndsAt())
                 .build();
+    }
+
+    private void throwExceptionIfThePasswordIsNotValid(final String password) {
+        if (!validator.validateUserPassword(password)) {
+            throw new InvalidResourceProvidedException("invalid password");
+        }
     }
 }
