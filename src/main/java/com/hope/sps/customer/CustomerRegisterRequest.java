@@ -17,4 +17,16 @@ public class CustomerRegisterRequest extends RegisterRequest {
     @Length(min = 10, max = 20, message = "phoneNumber must be between 10 and 20 chars")
     @NotEmpty(message = "phoneNumber is required")
     private String phoneNumber;
+
+    // for testing
+    public CustomerRegisterRequest(
+            String firstName,
+            String lastName,
+            String email,
+            String password,
+            String phoneNumber
+    ) {
+        super(firstName, lastName, email, password);
+        this.phoneNumber = phoneNumber;
+    }
 }
