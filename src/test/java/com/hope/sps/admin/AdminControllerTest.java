@@ -1,138 +1,91 @@
 package com.hope.sps.admin;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hope.sps.common.RegisterRequest;
-import com.hope.sps.jwt.JWTAuthFilter;
-import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeEach;
+import com.hope.sps.user_information.UserInformation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.times;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(value = AdminController.class,
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JWTAuthFilter.class)
-)
-class AdminControllerTest {
+@ExtendWith(MockitoExtension.class)
+public class AdminControllerTest {
 
-    private static final String BASE_URL = "/api/v1/admin";
-
-    @MockBean
+    @Mock
     private AdminService adminService;
 
-    @Autowired
-    private MockMvc mockMvc;
+    @InjectMocks
+    private AdminController adminController;
 
-    @Autowired
-    private ObjectMapper mapper;
+    @Test
+    @DisplayName("testGetAll AdminDTO + OK status code")
+    public void testGetAll_notEmptyAdminDTOList_shouldReturnListOfAdminDTOAndOKStatusCode() {
+        // Prepare
+        final var adminDTOS = new ArrayList<AdminDTO>();
+        adminDTOS.add(new AdminDTO(1L, "John", "Doe", "john@example.com"));
+        when(adminService.getAllAdmins()).thenReturn(adminDTOS);
 
-    private AdminDTO testAdminDTO1;
+        // Execute
+        final ResponseEntity<List<AdminDTO>> response = adminController.getAll();
 
-    private AdminDTO testAdminDTO2;
-
-    @BeforeEach
-    void prepareTestData() {
-        testAdminDTO1 = new AdminDTO(1L, "John", "Doe", "JohnDoe@gmail.com");
-        testAdminDTO2 = new AdminDTO(2L, "Mike", "James", "MikeJames@gmail.com");
+        // Verify
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo(adminDTOS);
     }
 
     @Test
-    @DisplayName("GET v1/api/admin getAllAdmins no data")
-    @WithMockUser(roles = "ADMIN")
-    @SneakyThrows
-    void testRegister_noAdminsFound_shouldReturn204NoContent() {
-        //given
-        //when
-        Mockito.when(adminService.getAllAdmins()).thenReturn(Collections.emptyList());
+    @DisplayName("testGetAll NO_CONTENT status code")
+    public void testGetAll_emptyAdminDTOList_shouldReturnNoContentStatusCode() {
+        // Prepare
+        when(adminService.getAllAdmins()).thenReturn(new ArrayList<>());
 
-        //then
-        mockMvc.perform(get(BASE_URL))
-                .andExpect(status().isNoContent())
-                .andDo(print());
+        // Execute
+        final ResponseEntity<List<AdminDTO>> response = adminController.getAll();
 
-        Mockito.verify(adminService, times(1)).getAllAdmins();
+        // Verify
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(response.getBody()).isNull();
     }
 
     @Test
-    @DisplayName("GET v1/api/admin getAllAdmins valid data")
-    @WithMockUser(roles = "ADMIN")
-    @SneakyThrows
-    public void testGetAllAdmins_adminsFound_shouldReturn200OkAndAdminDTOs() {
-        //given
-        final List<AdminDTO> adminDTOS = getTestAdminDTOList();
+    @DisplayName("testRegister adminId + OK status code")
+    public void testRegister_validRegistrationRequest() {
+        // Prepare
+        final var request = new RegisterRequest("John", "Doe", "john@example.com", "password");
+        final Long adminId = 1L;
+        when(adminService.registerAdmin(request)).thenReturn(adminId);
 
-        //when
-        Mockito.when(adminService.getAllAdmins()).thenReturn(adminDTOS);
+        // Execute
+        final ResponseEntity<Long> response = adminController.register(request);
 
-        //then
-        mockMvc.perform(get(BASE_URL))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(adminDTOS.size()))
-                .andDo(print());
-
-        Mockito.verify(adminService, times(1)).getAllAdmins();
+        // Verify
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo(adminId);
     }
 
     @Test
-    @DisplayName("POST v1/api/admin register valid RegistrationRequest")
-    @WithMockUser(roles = "ADMIN")
-    @SneakyThrows
-    void testRegister_validRegistrationRequest_ShouldReturn200OkAndGeneratedId() {
-        //given
-        final RegisterRequest validRegistrationRequest = new RegisterRequest(
-                "Ahmad",
-                "AliAli",
-                "Ahmad@gmail.com",
-                "Ahmad1234"
-        );
+    @DisplayName("testDeleteById NO_CONTENT status code")
+    public void testDeleteById() {
+        // Prepare
+        final Long adminId = 1L;
+        final var loggedInAdmin = new UserInformation();
+        doNothing().when(adminService).deleteAdminById(adminId, loggedInAdmin.getEmail());
 
-        final String validRegistrationRequestAsJson = mapper.writeValueAsString(validRegistrationRequest);
+        // Execute
+        final ResponseEntity<Void> response = adminController.deleteById(adminId, loggedInAdmin);
 
-        final Long generatedId = 1L;
-
-        //when
-        Mockito.when(adminService.registerAdmin(validRegistrationRequest))
-                .thenReturn(generatedId);
-
-        //then
-        mockMvc.perform(post(BASE_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(validRegistrationRequestAsJson))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @Test
-    @DisplayName("POST v1/api/admin register valid RegistrationRequest")
-    @WithMockUser(roles = "ADMIN")
-    @SneakyThrows
-    void testDeleteAdminById() {
-        final Long id = 1L;
-
-        Mockito.doNothing().when(adminService).deleteAdminById(id);
-
-        mockMvc.perform(delete(BASE_URL + "/%s".formatted(id)))
-                .andExpect(status().isNoContent())
-                .andDo(print());
-    }
-
-    private List<AdminDTO> getTestAdminDTOList() {
-        return List.of(testAdminDTO1, testAdminDTO2);
+        // Verify
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(response.getBody()).isNull();
+        verify(adminService, times(1)).deleteAdminById(adminId, loggedInAdmin.getEmail());
     }
 }

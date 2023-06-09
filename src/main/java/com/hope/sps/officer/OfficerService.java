@@ -7,15 +7,17 @@ import com.hope.sps.officer.schedule.Schedule;
 import com.hope.sps.user_information.Role;
 import com.hope.sps.user_information.UserInformation;
 import com.hope.sps.user_information.UserRepository;
+import com.hope.sps.util.Validator;
 import com.hope.sps.zone.Zone;
 import com.hope.sps.zone.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Time;
 import java.time.DayOfWeek;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,47 +34,52 @@ public class OfficerService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final Validator validator;
+
     private final ModelMapper mapper;
 
+    @Transactional(readOnly = true)
     public List<OfficerDTO> getAll() {
-        final var officerDTOs = new ArrayList<OfficerDTO>();
-
-        officerRepository.findAll().forEach(officer ->
-                officerDTOs.add(
-                        mapper.map(officer, OfficerDTO.class)
-                ));
-        return officerDTOs;
+        return officerRepository.findAll()
+                .stream()
+                .map(officer -> mapper.map(officer, OfficerDTO.class))
+                .toList();
     }
 
+    @Transactional(readOnly = true)
+    public OfficerDTO getOfficerById(final Long officerId) {
+
+        final var officer = getOfficerByIdFromDB(officerId);
+
+        return mapper.map(officer, OfficerDTO.class);
+    }
+
+    @Transactional
     public Long registerOfficer(final OfficerRegisterRequest request) {
 
+        // get userInformation object from the request
         final var userInformation = mapper.map(request, UserInformation.class);
-        if (userRepository.existsByEmail(userInformation.getEmail()))
-            throw new DuplicateResourceException("email already exists");
 
-//        if (!request.getPassword().matches(Validator.passwordValidationRegex))
-//            throw new InvalidResourceProvidedException("invalid password");
+        // email already exists? throw exception
+        throwExceptionIfEmailAlreadyExists(userInformation.getEmail());
 
-        if (request.getStartsAt().after(request.getEndsAt())) {
-            throw new InvalidResourceProvidedException("Start time cant be before end time");
-        }
+        // password invalid? throw exception
+        throwExceptionIfThePasswordIsNotValid(request.getPassword());
 
+        // end time before start time? throw exception
+        throwExceptionIfInvalidScheduleTime(request.getStartsAt(), request.getEndsAt());
+
+        // assign OFFICER role and hash officer's password
         userInformation.setRole(Role.OFFICER);
         userInformation.setPassword(passwordEncoder.encode(userInformation.getPassword()));
 
-        final var officerSchedule = Schedule.builder()
-                .daysOfWeek(
-                        request.getDaysOfWeek()
-                                .stream()
-                                .map(DayOfWeek::valueOf)
-                                .collect(Collectors.toSet())
-                ).
-                startsAt(request.getStartsAt()).
-                endsAt(request.getEndsAt()).
-                build();
+        // generate officerSchedule
+        final var officerSchedule = assempleOfficerSchedule(request);
 
+        // get all zones that officer responsible for
         final List<Zone> zonesByIds = zoneRepository.findAllById(request.getZoneIds());
 
+        // assemble an officer object, save it and return its generated id
         final var officer = new Officer(
                 userInformation,
                 officerSchedule,
@@ -83,44 +90,72 @@ public class OfficerService {
         return officerRepository.save(officer).getId();
     }
 
+    @Transactional
     public void updateOfficer(final OfficerUpdateRequest request, final Long officerId) {
 
-        if (request.getStartsAt().after(request.getEndsAt())) {
-            throw new InvalidResourceProvidedException("Start time cant be before end time");
-        }
+        // end time before start time? throw exception
+        throwExceptionIfInvalidScheduleTime(request.getStartsAt(), request.getEndsAt());
 
-        final var oldOfficer = officerRepository.findById(officerId).
-                orElseThrow(() ->
-                        new ResourceNotFoundException("officer not found")
-                );
+        // get to update officer information
+        final var toUpdateOfficer = getOfficerByIdFromDB(officerId);
 
-        // updating schedule info
-        final var schedule = oldOfficer.getSchedule();
+        // updating toUpdateOfficer schedule's info
+        final var schedule = toUpdateOfficer.getSchedule();
         schedule.setNewData(request);
 
-        // assigning zones to officer
+        // updating toUpdateOfficer zones
         final var zones = new HashSet<>(zoneRepository.findAllById(request.getZoneIds()));
-        oldOfficer.setZones(zones);
+        toUpdateOfficer.setZones(zones);
 
-        officerRepository.save(oldOfficer);
-    }
-
-
-    public OfficerDTO getOfficerById(final Long officerId) {
-
-        final var officer = officerRepository.findById(officerId)
-                .orElseThrow(
-                        () -> new ResourceNotFoundException("could not found officer with id: {%s}".formatted(officerId))
-                );
-
-        return mapper.map(officer, OfficerDTO.class);
+        officerRepository.save(toUpdateOfficer);
     }
 
     public void deleteOfficerById(final Long officerId) {
         if (!officerRepository.existsById(officerId)) {
-            throw new ResourceNotFoundException("could not delete officer with id: {%s}, no officer found".formatted(officerId));
-        }
+            throw new ResourceNotFoundException(
+                    "could not delete officer with id: {%s}, no officer found".formatted(officerId)
+            );
 
+        }
         officerRepository.deleteById(officerId);
+    }
+
+
+    /************ HELPER_METHOD **************/
+    private void throwExceptionIfEmailAlreadyExists(final String officerEmail) {
+        if (userRepository.existsByEmail(officerEmail))
+            throw new DuplicateResourceException("email already exists");
+    }
+
+    private void throwExceptionIfInvalidScheduleTime(final Time startsAt, final Time endsAt) {
+        if (startsAt.after(endsAt)) {
+            throw new InvalidResourceProvidedException("Start time cant be before end time");
+        }
+    }
+
+    private Officer getOfficerByIdFromDB(final Long officerId) {
+        return officerRepository.findById(officerId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException("could not found officer with id: {%s}".formatted(officerId))
+                );
+    }
+
+    private Schedule assempleOfficerSchedule(final OfficerRegisterRequest request) {
+        return Schedule.builder()
+                .daysOfWeek(
+                        request.getDaysOfWeek()
+                                .stream()
+                                .map(DayOfWeek::valueOf)
+                                .collect(Collectors.toSet())
+                )
+                .startsAt(request.getStartsAt())
+                .endsAt(request.getEndsAt())
+                .build();
+    }
+
+    private void throwExceptionIfThePasswordIsNotValid(final String password) {
+        if (!validator.validateUserPassword(password)) {
+            throw new InvalidResourceProvidedException("invalid password");
+        }
     }
 }

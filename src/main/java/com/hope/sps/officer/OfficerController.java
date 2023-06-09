@@ -5,15 +5,17 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
 @RequestMapping("api/v1/officer")
 @RequiredArgsConstructor
-//@PreAuthorize("hasAuthority('ADMIN')")
+@PreAuthorize("hasAuthority('ADMIN')")
 public class OfficerController {
 
     private final OfficerService officerService;
@@ -21,7 +23,7 @@ public class OfficerController {
     @GetMapping
     public ResponseEntity<List<OfficerDTO>> getAll() {
 
-        final List<OfficerDTO> officerDTOS = officerService.getAll();
+        final var officerDTOS = officerService.getAll();
         return ResponseEntity.ok(officerDTOS);
     }
 
@@ -29,9 +31,10 @@ public class OfficerController {
     public ResponseEntity<OfficerDTO> getById(
             @PathVariable("officerId")
             @Validated @Positive
-            Long officerId) {
+            Long officerId
+    ) {
 
-        final OfficerDTO officerById = officerService.getOfficerById(officerId);
+        final var officerById = officerService.getOfficerById(officerId);
         return ResponseEntity.ok(officerById);
     }
 

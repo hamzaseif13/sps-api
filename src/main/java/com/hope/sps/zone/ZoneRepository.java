@@ -8,7 +8,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ZoneRepository extends JpaRepository<Zone, Long> {
 
-    boolean existsByTag(String tag);
+    boolean existsByTag(final String tag);
+
 
     @Query("SELECT z.fee FROM Zone z WHERE z.id=:id")
     double getFeeById(@Param("id") Long zoneId);

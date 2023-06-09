@@ -1,4 +1,4 @@
-package com.hope.sps.customer.payment.wallet;
+package com.hope.sps.customer.wallet;
 
 import com.hope.sps.customer.Customer;
 import com.hope.sps.customer.CustomerRepository;
@@ -22,9 +22,11 @@ public class WalletService {
         final var customer = getLoggedInCustomer(userEmail);
 
         final BigDecimal walletBalance = customer.getWallet().getBalance();
-        final BigDecimal amountToAdd = new BigDecimal(request.getAmountToCharge());
+
+        final var amountToAdd = new BigDecimal(request.getAmountToCharge());
 
         customer.getWallet().setBalance(walletBalance.add(amountToAdd));
+
         return customer.getWallet().getId();
     }
 

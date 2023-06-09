@@ -5,7 +5,6 @@ import com.hope.sps.user_information.UserInformation;
 import com.hope.sps.zone.Zone;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,7 +13,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "officer")
-@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -6,29 +6,26 @@ import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.user_information.Role;
 import com.hope.sps.user_information.UserInformation;
-import org.junit.jupiter.api.BeforeEach;
+import com.hope.sps.util.Validator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatObject;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AdminServiceTest {
-
-    @Mock
-    private ModelMapper mapper;
+public class AdminServiceTest {
 
     @Mock
     private AdminRepository adminRepository;
@@ -36,139 +33,133 @@ class AdminServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private ModelMapper modelMapper;
+
+    @Mock
+    private Validator validator;
+
     @InjectMocks
-    private AdminService underTest;
+    private AdminService adminService;
 
-    private RegisterRequest testRegisterRequest;
 
-    private UserInformation testUserInformation;
+    @Test
+    @DisplayName("testGetAllAdmins List of AdminDTO")
+    public void testGetAllAdmins_shouldReturnListOfAdminDTO() {
+        // Prepare
+        final var adminEntities = new ArrayList<Admin>();
+        final var testAdmin = new Admin(new UserInformation(1L, "John", "Doe", "john@example.com", "password", Role.ADMIN));
+        final var testAdminDTO = new AdminDTO(1L, "John", "Doe", "john@example.com");
+        adminEntities.add(testAdmin);
 
-    private Admin testAdmin;
+        when(adminRepository.findAll()).thenReturn(adminEntities);
+        when(modelMapper.map(any(Admin.class), eq(AdminDTO.class))).thenReturn(testAdminDTO);
 
-    @BeforeEach
-    void setUp() {
-        testRegisterRequest = new RegisterRequest(
-                "John",
-                "Doe",
-                "John@gmail.com",
-                "John@1234"
-        );
+        // Execute
+        final List<AdminDTO> result = adminService.getAllAdmins();
 
-        testUserInformation = new UserInformation(
-                "John@gmail.com",
-                "ENCODED_PASSWORD",
-                "John",
-                "Doe",
-                Role.ADMIN
-        );
-
-        testAdmin = new Admin(1L, testUserInformation);
+        // Verify
+        assertThat(result.get(0)).isEqualTo(testAdminDTO);
+        verify(adminRepository, times(1)).findAll();
+        verify(modelMapper, times(1)).map(any(Admin.class), eq(AdminDTO.class));
     }
 
     @Test
-    @DisplayName("test registerAdmin(RegisterRequest request)")
-    void testRegisterAdmin_shouldRegisterTheAdminAndReturnTheGeneratedID() {
+    @DisplayName("testRegisterAdmin duplicate email")
+    public void testRegisterAdmin_duplicateEmail_shouldThrowDuplicateResourceException() {
+        // Prepare
+        final var request = new RegisterRequest("John", "Doe", "john@example.com", "password");
+        when(adminRepository.existsByUserInformationEmail(request.getEmail())).thenReturn(true);
 
-        //Given
-        final Admin toRegisterAdmin = new Admin(testUserInformation);
-
-        //When
-        Mockito.when(adminRepository.existsByUserInformationEmail(
-                        testRegisterRequest.getEmail()))
-                .thenReturn(false);
-
-        Mockito.when(passwordEncoder.encode(testRegisterRequest.getPassword()))
-                .thenReturn("ENCODED_PASSWORD");
-
-        Mockito.when(mapper.map(testRegisterRequest, UserInformation.class))
-                .thenReturn(testUserInformation);
-
-        Mockito.when(adminRepository.save(toRegisterAdmin))
-                .thenReturn(testAdmin);
-
-        final Long generatedId = underTest.registerAdmin(testRegisterRequest);
-
-        //Then
-        Mockito.verify(adminRepository).save(toRegisterAdmin);
-
-        assertThat(generatedId).isEqualTo(1L);
-        assertThat(toRegisterAdmin.getUserInformation().getPassword()).isEqualTo("ENCODED_PASSWORD");
+        // Execute and Verify
+        assertThrows(DuplicateResourceException.class, () -> adminService.registerAdmin(request));
+        verify(adminRepository, times(1)).existsByUserInformationEmail(request.getEmail());
+        verifyNoMoreInteractions(adminRepository);
     }
 
     @Test
-    @DisplayName("test registerAdmin(RegisterRequest request)")
-    void testRegisterAdmin_existingEmail_shouldThrowDuplicateResourceException() {
+    @DisplayName("testRegisterAdmin invalid password")
+    public void testRegisterAdmin_invalidPassword_shouldThrowInvalidResourceProvidedException() {
+        // Prepare
+        final var request = new RegisterRequest("John", "Doe", "john@example.com", "short");
+        when(adminRepository.existsByUserInformationEmail(request.getEmail())).thenReturn(false);
 
-        //Given
-        //When
-        Mockito.when(adminRepository.existsByUserInformationEmail(
-                        testRegisterRequest.getEmail()))
-                .thenReturn(true);
-
-        // then
-        assertThatExceptionOfType(DuplicateResourceException.class)
-                .isThrownBy(()->underTest.registerAdmin(testRegisterRequest));
+        // Execute and Verify
+        assertThrows(InvalidResourceProvidedException.class, () -> adminService.registerAdmin(request));
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(passwordEncoder);
     }
 
     @Test
-    @DisplayName("test registerAdmin(RegisterRequest request)")
-    void testRegisterAdmin_invalidPassword_shouldThrowInvalidResourceProvidedException() {
+    @DisplayName("testRegisterAdmin Admin Id")
+    public void testRegisterAdmin_validRegisterRequest_shouldSuccessAndReturnAdminId() {
+        // Prepare
+        final var request = new RegisterRequest("John", "Doe", "john@example.com", "password");
+        final var adminDetails = new UserInformation(1L, "John", "Doe", "john@example.com", "password", null);
 
-        //Given
-        //When
-        testRegisterRequest.setPassword("invalid password");
-        // then
-        assertThatExceptionOfType(InvalidResourceProvidedException.class)
-                .isThrownBy(()->underTest.registerAdmin(testRegisterRequest));
+        when(adminRepository.existsByUserInformationEmail(request.getEmail())).thenReturn(false);
+        when(validator.validateUserPassword(anyString())).thenReturn(true);
+        when(modelMapper.map(request, UserInformation.class)).thenReturn(adminDetails);
+        when(passwordEncoder.encode(request.getPassword())).thenReturn("encodedPassword");
+        when(adminRepository.save(any(Admin.class))).thenReturn(new Admin(1L, adminDetails));
+
+        // Execute
+        final Long adminId = adminService.registerAdmin(request);
+
+        // Verify
+        assertThat(adminId).isGreaterThan(0);
+        verify(modelMapper, times(1)).map(request, UserInformation.class);
+        verify(passwordEncoder, times(1)).encode(request.getPassword());
+        verify(adminRepository, times(1)).save(any(Admin.class));
     }
 
     @Test
-    @DisplayName("test getAllAdmins()")
-    void testGetAllAdmins_shouldReturnListOfAdminDTOs() {
-        final AdminDTO testAdminDTO = new AdminDTO(
-                testAdmin.getId(),
-                testAdmin.getUserInformation().getFirstName(),
-                testAdmin.getUserInformation().getLastName(),
-                testAdmin.getUserInformation().getEmail()
-        );
+    @DisplayName("testDeleteAdminById not found admin id")
+    public void testDeleteAdminById_adminIdNotFound_shouldThrowResourceNotFoundException() {
+        // Prepare
+        final Long adminId = 1L;
+        final String loggedInAdminEmail = "admin@example.com";
+        when(adminRepository.existsById(adminId)).thenReturn(false);
 
-        Mockito.when(adminRepository.findAll())
-                .thenReturn(List.of(testAdmin));
-
-        Mockito.when(mapper.map(testAdmin, AdminDTO.class))
-                .thenReturn(testAdminDTO);
-
-        final List<AdminDTO> actualAdminDTOS = underTest.getAllAdmins();
-
-        Mockito.verify(adminRepository).findAll();
-
-        assertThat(actualAdminDTOS.size()).isEqualTo(1);
-
-        assertThatObject(actualAdminDTOS.get(0)).isEqualTo(testAdminDTO);
+        // Execute and Verify
+        assertThrows(ResourceNotFoundException.class, () -> adminService.deleteAdminById(adminId, loggedInAdminEmail));
+        verify(adminRepository, times(1)).existsById(adminId);
+        verifyNoMoreInteractions(adminRepository);
     }
 
     @Test
-    @DisplayName("test deleteAdminById(Long id)")
-    void testDeleteAdminById_validAdminId() {
-        final Long testAdminID = 1L;
+    @DisplayName("testDeleteAdminById self deletion")
+    public void testDeleteAdminById_selfDeletion_shouldThrowInvalidResourceProvidedException() {
+        // Prepare
+        final Long adminId = 1L;
+        final String loggedInAdminEmail = "admin@example.com";
+        final var loggedInAdmin = new Admin(adminId, new UserInformation(2L, "John", "Doe", loggedInAdminEmail, "password", Role.ADMIN));
+        when(adminRepository.existsById(adminId)).thenReturn(true);
+        when(adminRepository.findByUserInformationEmail(loggedInAdminEmail)).thenReturn(Optional.of(loggedInAdmin));
 
-        Mockito.when(adminRepository.existsById(any()))
-                .thenReturn(true);
-
-        underTest.deleteAdminById(testAdminID);
-
-        Mockito.verify(adminRepository).deleteById(testAdminID);
+        // Execute and Verify
+        assertThrows(InvalidResourceProvidedException.class, () -> adminService.deleteAdminById(adminId, loggedInAdminEmail));
+        verify(adminRepository, times(1)).existsById(adminId);
+        verify(adminRepository, times(1)).findByUserInformationEmail(loggedInAdminEmail);
+        verifyNoMoreInteractions(adminRepository);
     }
 
     @Test
-    @DisplayName("test deleteAdminById(Long id)")
-    void testDeleteAdminById_invalidAdminId() {
-        final Long testAdminID = 1L;
+    @DisplayName("testDeleteAdminById self deletion")
+    public void testDeleteAdminById() {
+        // Prepare
+        final Long adminId = 1L;
+        final String loggedInAdminEmail = "admin@example.com";
+        final var loggedInAdmin = new Admin(2L, new UserInformation(2L, "John", "Doe", loggedInAdminEmail, "password", Role.ADMIN));
+        when(adminRepository.existsById(adminId)).thenReturn(true);
+        when(adminRepository.findByUserInformationEmail(loggedInAdminEmail)).thenReturn(Optional.of(loggedInAdmin));
 
-        Mockito.when(adminRepository.existsById(any()))
-                .thenReturn(false);
+        // Execute
+        adminService.deleteAdminById(adminId, loggedInAdminEmail);
 
-        assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(()-> underTest.deleteAdminById(testAdminID));
+        // Verify
+        verify(adminRepository, times(1)).existsById(adminId);
+        verify(adminRepository, times(1)).findByUserInformationEmail(loggedInAdminEmail);
+        verify(adminRepository, times(1)).deleteById(adminId);
     }
 }

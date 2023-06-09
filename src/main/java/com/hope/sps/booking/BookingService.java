@@ -3,7 +3,7 @@ package com.hope.sps.booking;
 import com.hope.sps.customer.Customer;
 import com.hope.sps.customer.CustomerRepository;
 import com.hope.sps.customer.car.Car;
-import com.hope.sps.customer.payment.wallet.Wallet;
+import com.hope.sps.customer.wallet.Wallet;
 import com.hope.sps.exception.ExtendedBookingSessionException;
 import com.hope.sps.exception.InsufficientWalletBalanceException;
 import com.hope.sps.exception.InvalidResourceProvidedException;
@@ -15,11 +15,11 @@ import com.hope.sps.zone.space.Space;
 import com.hope.sps.zone.space.SpaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -34,6 +34,8 @@ public class BookingService {
     private final ZoneRepository zoneRepository;
 
     private final SpaceRepository spaceRepository;
+
+    private final BookingSessionExpirationObservable sessionExpirationObservable;
 
     private final ModelMapper mapper;
 
@@ -60,7 +62,9 @@ public class BookingService {
             return Optional.empty();
         }
 
-        // if there is a current booking session then, map it to BookingSessionHistoryDTO and return it.
+        // if there is a current booking session then, map it to BookingSessionHistoryDTO and return it,
+        // else get the last booking session from the history
+        // and map it to BookingSessionHistoryDTO and return it.
         // "orElse(null)" will never get executed
         bookingSessionHistoryDTO = prepareBookingSessionHistoryDTO(
                 Objects.requireNonNullElseGet(
@@ -77,7 +81,7 @@ public class BookingService {
 
         // get booking session history of logged in customer
         final Set<BookingSession> bookingSessionHistory = loggedInCustomer.getBookingHistory();
-        System.err.println(bookingSessionHistory);
+
         if (bookingSessionHistory == null)
             return Collections.emptyList();
 
@@ -93,102 +97,124 @@ public class BookingService {
             final UserInformation userInformation
     ) {
 
-        if (!bookingSessionRepository.existsBookingSessionByIdAndStateIs(currentSessionId, BookingSession.State.ACTIVE)) {
-            throw new ResourceNotFoundException("there is no active booking session");
-        }
+        // if there is no active booking session then throw exception
+        throwExceptionIfNoActiveBookingSession(currentSessionId);
 
+        // get logged in customer
         final Customer loggedInCustomer = getLoggedInCustomer(userInformation.getEmail());
 
-        if(loggedInCustomer.getActiveBookingSession().getExtended()) {
-            throw new ExtendedBookingSessionException("this booking session already extended, cannot be extended anymore");
-        }
+        // if the active booking session is already extended, then throw exception
+        throwExceptionIfActiveBookingSessionIsExtended(loggedInCustomer);
 
+        // get logged in customer's wallet
         final var customerWallet = loggedInCustomer.getWallet();
-        final double totalFeeToStrip =
-                getTotalFeeToStrip(request.getZoneId(), customerWallet, request.getDurationInMs() / 60_000);
 
-        customerWallet.setBalance(customerWallet.getBalance().subtract(new BigDecimal(totalFeeToStrip)));
-        loggedInCustomer.getActiveBookingSession().setExtended(true);
-        loggedInCustomer.getActiveBookingSession().setDuration(loggedInCustomer.getActiveBookingSession().getDuration() + request.getDurationInMs());
+        // calculate and get total fee to strip after extend the current session
+        // note an exception will be thrown if insufficient balance
+        final BigDecimal totalFeeToStrip = calculateTotalFeeToStrip(
+                request.getZoneId(),
+                customerWallet,
+                request.getDurationInMs() / 60_000
+        );
+
+        // strip totalFeeToStrip from customer wallet's balance
+        customerWallet.setBalance(customerWallet.getBalance().subtract(totalFeeToStrip));
+
+        // get Active booking session for logged-in customer
+        final var activeBookingSession = loggedInCustomer.getActiveBookingSession();
+
+        // mark it as extended and increase its duration and update endingAt,
+        final long updatedDurationInMs = activeBookingSession.getDuration() + request.getDurationInMs();
+        activeBookingSession.setExtended(true);
+        activeBookingSession.setDuration(updatedDurationInMs);
+        activeBookingSession.setEndingAt(
+                LocalDateTime.now().plusMinutes(updatedDurationInMs / 60_000)
+        );
+        sessionExpirationObservable.attach(activeBookingSession);
     }
 
+
     @Transactional
-    public Long startNewBookingSession(final UserInformation userInformation, final BookingSessionRequest request) {
+    public Long startNewBookingSession(final String customerEmail, final BookingSessionRequest request) {
+
         // if the space with zoneId, spaceNumber and the state is taken, then the space is taken, cannot be booked
-        if (spaceRepository.existsByZoneIdAndNumberAndStateIs(request.getZoneId(), request.getSpaceNumber(), Space.State.TAKEN)) {
-            throw new InvalidResourceProvidedException("space already taken");
-        }
+        throwExceptionIfToBookSpaceIsTaken(request);
 
         // get current logged in customer
-        final Customer loggedInCustomer = getLoggedInCustomer(userInformation.getEmail());
+        final Customer loggedInCustomer = getLoggedInCustomer(customerEmail);
 
         // if the customer already has active booking session then throw exc
-        if (loggedInCustomer.getActiveBookingSession() != null) {
-            throw new InvalidResourceProvidedException("customer already have active booking session");
-        }
+        throwExceptionIfThereIsAlreadyActiveSession(loggedInCustomer);
+
+        // if the customer didn't specify a car or specified a car but not belong to him, then throw exception
+        throwExceptionIfNoValidCarSpecified(loggedInCustomer.getCars(), request.getCarId());
 
         // space which user aims to book
-        var spaceToBeBooked = getSpaceByZoneIdAndSpaceNumber(request.getZoneId(), request.getSpaceNumber());
+        final var spaceToBeBooked = getSpaceByZoneIdAndSpaceNumber(request.getZoneId(), request.getSpaceNumber());
 
-        // make new booking session
-        var newBookingSession = BookingSession.builder()
+        // assemble new booking session to be persisted
+        final var newBookingSession = BookingSession.builder()
                 .car(new Car(request.getCarId()))
-                .space(new Space(spaceToBeBooked.getId()))
+                .space(spaceToBeBooked)
                 .duration(request.getDurationInMs())
                 .extended(false)
                 .state(BookingSession.State.ACTIVE)
                 .customer(loggedInCustomer)
                 .build();
 
+        // get logged in customer's wallet
         final var customerWallet = loggedInCustomer.getWallet();
-        final double totalFeeToStrip =
-                getTotalFeeToStrip(request.getZoneId(), customerWallet, request.getDurationInMs() / 60_000);
 
+        // calculate and get total fee to strip after starting the session
+        // note an exception will be thrown if insufficient balance
+        final BigDecimal totalFeeToStrip = calculateTotalFeeToStrip(
+                request.getZoneId(),
+                customerWallet,
+                request.getDurationInMs() / 60_000
+        );
+
+        // mark the space as taken
         spaceToBeBooked.setState(Space.State.TAKEN);
-        customerWallet.setBalance(customerWallet.getBalance().subtract(new BigDecimal(totalFeeToStrip)));
+
+        // strip totalFeeToStrip from customer wallet's balance
+        customerWallet.setBalance(customerWallet.getBalance().subtract(totalFeeToStrip));
+
+        // set ending at
+        newBookingSession.setEndingAt(
+                LocalDateTime.now().plusMinutes(newBookingSession.getDuration() / 60_000)
+        );
+
+        // save the booking session and assign it to the customer, then return its id
         final var createdBookingSession = bookingSessionRepository.save(newBookingSession);
         loggedInCustomer.setActiveBookingSession(createdBookingSession);
-
+        sessionExpirationObservable.attach(createdBookingSession);
         return createdBookingSession.getId();
     }
 
-    @Transactional
-    @Scheduled(fixedRate = 30000)
-    public void invalidateBookingSession() {
-        //get all active booking sessions
-        final List<BookingSession> activeBookingSessions =
-                bookingSessionRepository.getBookingSessionByStateIs(BookingSession.State.ACTIVE);
-
-        //get current date time
-        var currentLocalDateTime = LocalDateTime.now();
-
-        // for each session if the duration expired, make the space's state AVAILABLE,
-        // Session's state ARCHIVED, customer's current session to null
-        activeBookingSessions.forEach(bookingSession -> {
-            var durationInMinutes = bookingSession.getDuration() / 60_000;
-
-            var toExpireLocalDateTime = bookingSession.getCreatedAt().plusMinutes(durationInMinutes);
-
-            if (currentLocalDateTime.isAfter(toExpireLocalDateTime)) {
-                bookingSession.getSpace().setState(Space.State.AVAILABLE);
-                bookingSession.setState(BookingSession.State.ARCHIVED);
-                bookingSession.getCustomer().setActiveBookingSession(null);
-            }
-        });
-    }
-
-    private double getTotalFeeToStrip(
+    private BigDecimal calculateTotalFeeToStrip(
             final Long zoneId,
             final Wallet customerWallet,
             final Long durationInMinutes
     ) {
-        final double zoneFee = zoneRepository.getFeeById(zoneId);
-        final double total = ((double) durationInMinutes / 60) * zoneFee;
-        final double totalAfterStriping = customerWallet.getBalance().subtract(new BigDecimal(total)).doubleValue();
 
-        if (totalAfterStriping < 0)
+        // get zone's fee
+        final var zoneFee = BigDecimal.valueOf(zoneRepository.getFeeById(zoneId));
+
+        // convert the duration in minutes to hours
+        final var durationInHours = BigDecimal.valueOf(durationInMinutes)
+                .divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP);
+
+        // calculate the total fee by multiplying durationInHours and zoneFee
+        final BigDecimal totalFee = zoneFee.multiply(durationInHours);
+
+        // calculates customer wallet's balance after stripping
+        final BigDecimal customerWalletBalanceAfterStripping = customerWallet.getBalance().subtract(totalFee);
+
+        // throw exception if there is no sufficient wallet balance after stripping
+        if (customerWalletBalanceAfterStripping.compareTo(BigDecimal.ZERO) == 0)
             throw new InsufficientWalletBalanceException("Insufficient balance please charge your wallet");
-        return total;
+
+        return totalFee;
     }
 
     /***************** HELPER METHODS *********************/
@@ -201,15 +227,45 @@ public class BookingService {
 
     // map the booking session with the associated zone to DTOs, prepare the BookingSessionHistoryDTO and return it
     private BookingSessionHistoryDTO prepareBookingSessionHistoryDTO(final BookingSession currentBookingSession) {
-        final BookingSessionDTO bookingSessionDTO = mapper.map(currentBookingSession, BookingSessionDTO.class);
-        final ZoneDTO zoneDTO = mapper.map(currentBookingSession.getSpace().getZone(), ZoneDTO.class);
+        final var bookingSessionDTO = mapper.map(currentBookingSession, BookingSessionDTO.class);
+        final var zoneDTO = mapper.map(currentBookingSession.getSpace().getZone(), ZoneDTO.class);
         return new BookingSessionHistoryDTO(bookingSessionDTO, zoneDTO);
     }
 
     private Space getSpaceByZoneIdAndSpaceNumber(final Long zoneId, final Integer spaceNumber) {
         return spaceRepository.findByZoneIdAndNumber(zoneId, spaceNumber)
-                .orElseThrow(() -> new ResourceNotFoundException("No space found with zoneId: [%d] and spaceNumber: [%d]"
-                        .formatted(zoneId, spaceNumber))
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("No space found with zoneId: [%d] and spaceNumber: [%d]"
+                                .formatted(zoneId, spaceNumber))
                 );
+    }
+
+    private void throwExceptionIfNoActiveBookingSession(final Long currentSessionId) {
+        if (!bookingSessionRepository.existsBookingSessionByIdAndStateIs(currentSessionId, BookingSession.State.ACTIVE)) {
+            throw new ResourceNotFoundException("there is no active booking session");
+        }
+    }
+
+    private void throwExceptionIfActiveBookingSessionIsExtended(Customer loggedInCustomer) {
+        if (loggedInCustomer.getActiveBookingSession().getExtended()) {
+            throw new ExtendedBookingSessionException("this booking session already extended, cannot be extended anymore");
+        }
+    }
+
+    private void throwExceptionIfToBookSpaceIsTaken(final BookingSessionRequest request) {
+        if (spaceRepository.existsByZoneIdAndNumberAndStateIs(request.getZoneId(), request.getSpaceNumber(), Space.State.TAKEN)) {
+            throw new InvalidResourceProvidedException("space already taken");
+        }
+    }
+
+    private void throwExceptionIfThereIsAlreadyActiveSession(Customer loggedInCustomer) {
+        if (loggedInCustomer.getActiveBookingSession() != null) {
+            throw new InvalidResourceProvidedException("customer already have active booking session");
+        }
+    }
+
+    private void throwExceptionIfNoValidCarSpecified(final Set<Car> loggedInCustomerCars, final Long specifiedCarId) {
+        if (loggedInCustomerCars.isEmpty() || !loggedInCustomerCars.contains(new Car(specifiedCarId)))
+            throw new InvalidResourceProvidedException("you need to choose your car");
     }
 }

@@ -1,12 +1,14 @@
 package com.hope.sps.customer;
 
 import com.hope.sps.auth.AuthenticationResponse;
-import com.hope.sps.customer.payment.wallet.Wallet;
+import com.hope.sps.customer.wallet.Wallet;
 import com.hope.sps.exception.DuplicateResourceException;
+import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.jwt.JwtUtils;
 import com.hope.sps.user_information.Role;
 import com.hope.sps.user_information.UserInformation;
+import com.hope.sps.util.Validator;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +27,8 @@ public class CustomerService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final Validator validator;
+
     private final JwtUtils jwtUtils;
 
     private final ModelMapper mapper;
@@ -42,36 +46,61 @@ public class CustomerService {
     }
 
     public AuthenticationResponse registerCustomer(final CustomerRegisterRequest request) {
-        if (customerRepository.existsByUserInformationEmail(request.getEmail()))
-            throw new DuplicateResourceException("email already exists");
+        // an email existing, similar to the one provided in the request?
+        throwExceptionIfExistingEmail(request.getEmail());
 
-//        if (!request.getPassword().matches(Validator.passwordValidationRegex))
-//            throw new InvalidResourceProvidedException("invalid password");
+        // not valid password according to validation policy?
+        throwExceptionIfThePasswordIsNotValid(request.getPassword());
 
+        // here email and password are valid
+        // map the CustomerRegisterRequest object to UserInformation Object and set role to CUSTOMER
         final var customerInformation = mapper.map(request, UserInformation.class);
         customerInformation.setRole(Role.CUSTOMER);
+
+        // hash the customer's password
         customerInformation.setPassword(passwordEncoder.encode(request.getPassword()));
 
+        // initialize customer wallet with 10.0 JOD
         final var customerWallet = new Wallet(new BigDecimal("10.0"));
 
+        // assemble a customer object to be persisted
         final var customer = new Customer(customerInformation, customerWallet, request.getPhoneNumber());
 
+        // save the customer
         customerRepository.save(customer);
 
+        // generate token from customerInformation
         final String jwtToken = jwtUtils.generateToken(customerInformation);
+
+        // assemble AuthenticationResponse object for the client, and return it
         return new AuthenticationResponse(
+                customerInformation.getFirstName(),
+                customerInformation.getLastName(),
                 request.getEmail(),
                 jwtToken,
-                Role.CUSTOMER,
-                customerInformation.getFirstName(),
-                customerInformation.getLastName()
+                customerInformation.getRole()
         );
     }
 
-    public CustomerDTO findById(Long customerId) {
-        return mapper.map(customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException("customer doesn't exists")
-                ), CustomerDTO.class
-        );
+    public CustomerDTO findById(final Long customerId) {
+        final Customer customerById = customerRepository.findById(customerId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("customer doesn't exists")
+                );
+
+        return mapper.map(customerById, CustomerDTO.class);
+    }
+
+    /************** HELPER_METHODS *************/
+
+    private void throwExceptionIfExistingEmail(final String customerEmail) {
+        if (customerRepository.existsByUserInformationEmail(customerEmail))
+            throw new DuplicateResourceException("email already exists");
+    }
+
+    private void throwExceptionIfThePasswordIsNotValid(final String password) {
+        if (!validator.validateUserPassword(password)) {
+            throw new InvalidResourceProvidedException("invalid password");
+        }
     }
 }

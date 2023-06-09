@@ -14,13 +14,24 @@ public class ScheduleService {
     private final OfficerRepository officerRepository;
 
     public Optional<ScheduleDTO> getCurrentScheduleByEmail(final String officerEmail) {
+        // get logged-in officer
         final Officer loggedInOfficer = getOfficerByEmail(officerEmail);
+
+        // get logged-in officer's schedule
         final Schedule officerSchedule = loggedInOfficer.getSchedule();
 
+        // officer doesn't have a schedule?
         if (officerSchedule == null)
             return Optional.empty();
 
-        final ScheduleDTO scheduleDTO = new ScheduleDTO(officerSchedule.getStartsAt(), officerSchedule.getEndsAt(), loggedInOfficer.getZones());
+        // assemble officer's schedule
+        final var scheduleDTO = new ScheduleDTO(
+                officerSchedule.getStartsAt(),
+                officerSchedule.getEndsAt(),
+                loggedInOfficer.getZones(),
+                officerSchedule.getDaysOfWeek()
+        );
+
         return Optional.of(scheduleDTO);
     }
 
