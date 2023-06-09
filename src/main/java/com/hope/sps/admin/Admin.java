@@ -3,13 +3,11 @@ package com.hope.sps.admin;
 import com.hope.sps.user_information.UserInformation;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "admin")
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

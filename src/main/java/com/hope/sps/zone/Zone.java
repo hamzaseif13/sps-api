@@ -11,7 +11,6 @@ import java.util.Set;
 @Table(name = "zone")
 @Setter
 @Getter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Zone {

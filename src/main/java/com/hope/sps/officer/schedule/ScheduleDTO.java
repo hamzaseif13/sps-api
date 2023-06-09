@@ -19,5 +19,6 @@ public class ScheduleDTO {
     private Time endsAt;
 
     private Set<Zone> zones;
+
     private Set<DayOfWeek> daysOfWeek;
 }

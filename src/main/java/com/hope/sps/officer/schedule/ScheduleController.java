@@ -22,9 +22,10 @@ public class ScheduleController {
     public ResponseEntity<ScheduleDTO> getLoggedInOfficerSchedule(
             @AuthenticationPrincipal UserInformation loggedInOfficer
     ) {
+        final Optional<ScheduleDTO> scheduleDTO = scheduleService
+                .getCurrentScheduleByEmail(loggedInOfficer.getEmail());
 
-        final Optional<ScheduleDTO> scheduleDTO = scheduleService.getCurrentScheduleByEmail(loggedInOfficer.getEmail());
-
-        return scheduleDTO.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
+        return scheduleDTO.map(ResponseEntity::ok)
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 }

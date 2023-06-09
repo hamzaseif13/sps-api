@@ -22,10 +22,6 @@ public class Violation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "officer_id")
-    private Officer officer;
-
     @Column(name = "plate_number", nullable = false)
     private String plateNumber;
 
@@ -44,6 +40,10 @@ public class Violation {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "officer_id")
+    private Officer officer;
 
     @ManyToOne
     @JoinColumn(name = "zone_id")

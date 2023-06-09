@@ -15,7 +15,11 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
 
-    @PostMapping("/login")//admin login, officer and customer not allowed
+    // Only users with ADMIN role can proceed with this end point,
+    // either CUSTOMER nor OFFICER Roles are allowed to be authenticated here.
+    // This endpoint must be used to authenticate only ADMIN.
+    // So officers or customers are not allowed, for example, to access admin dashboard
+    @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> authenticateAdmin(
             @RequestBody @Valid
             LoginRequest request
@@ -26,7 +30,11 @@ public class AuthenticationController {
     }
 
 
-    @PostMapping("/login_mobile")//officer and customer login, admin no allowed
+    // Only users with CUSTOMER or OFFICER role can proceed with this end point,
+    // admins are NOT allowed to be authenticated here.
+    // This endpoint must be used to authenticate only CUSTOMER or OFFICER.
+    // So admins are not allowed, for example, to access the mobile application
+    @PostMapping("/login_mobile")
     public ResponseEntity<AuthenticationResponse> authenticateOfficerAndCustomer(
             @RequestBody @Valid
             LoginRequest request

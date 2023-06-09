@@ -1,16 +1,17 @@
-package com.hope.sps.customer.payment.wallet;
+package com.hope.sps.customer.wallet;
 
 import com.hope.sps.user_information.UserInformation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/wallet")
 @RequiredArgsConstructor
-//@PreAuthorize("hasAuthority('CUSTOMER')")
+@PreAuthorize("hasAuthority('CUSTOMER')")
 public class WalletController {
 
     private final WalletService walletService;
@@ -21,7 +22,7 @@ public class WalletController {
             UserInformation loggedInUser
     ) {
 
-        final WalletDTO walletDTO = walletService.getWallet(loggedInUser.getEmail());
+        final var walletDTO = walletService.getWallet(loggedInUser.getEmail());
         return ResponseEntity.ok(walletDTO);
     }
 

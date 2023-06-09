@@ -2,16 +2,17 @@ package com.hope.sps.admin;
 
 import com.hope.sps.common.RegisterRequest;
 import com.hope.sps.exception.DuplicateResourceException;
+import com.hope.sps.exception.InvalidResourceProvidedException;
 import com.hope.sps.exception.ResourceNotFoundException;
 import com.hope.sps.user_information.Role;
 import com.hope.sps.user_information.UserInformation;
+import com.hope.sps.util.Validator;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -23,28 +24,27 @@ public class AdminService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final Validator validator;
+
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
     public List<AdminDTO> getAllAdmins() {
-        // list to contain mapped admin entities to adminDTO objects, needed by the controller
-        final List<AdminDTO> adminDTOS = new ArrayList<>();
 
-        // for each admin entity, map it to adminDTO object and add it to the list
-        adminRepository.findAll().forEach(admin -> adminDTOS.add(mapper.map(admin, AdminDTO.class)));
-
-        return adminDTOS;
+        // for each admin entity, map it to adminDTO object
+        return adminRepository.findAll()
+                .stream()
+                .map(admin -> mapper.map(admin, AdminDTO.class))
+                .toList();
     }
 
     @Transactional
     public Long registerAdmin(final RegisterRequest request) {
         // an email existing, similar to the one provided in the request?
-        if (adminRepository.existsByUserInformationEmail(request.getEmail()))
-            throw new DuplicateResourceException("email already exists");
+        throwExceptionIfExistingEmail(request.getEmail());
 
         // not valid password according to validation policy?
-//        if (!request.getPassword().matches(Validator.passwordValidationRegex))
-//            throw new InvalidResourceProvidedException("invalid password");
+        throwExceptionIfThePasswordIsNotValid(request.getPassword());
 
         // here email and password are valid
         // map the RegisterRequest object to UserInformation Object and set role to ADMIN
@@ -59,13 +59,45 @@ public class AdminService {
     }
 
     @Transactional
-    public void deleteAdminById(final Long adminId) {
+    public void deleteAdminById(final Long adminId, final String loggedInAdminEmail) {
         // invalid id provided ?
-        if (!adminRepository.existsById(adminId)) {
-            throw new ResourceNotFoundException("could not delete admin with id: {%s}, no admin found".formatted(adminId));
-        }
+        throwExceptionIfAdminIdNotExisting(adminId);
+
+        // get logged in admin
+        final Admin loggedInAdmin = getLoggedInAdmin(loggedInAdminEmail);
+
+        // is admin trying to delete him self?
+        if (loggedInAdmin.getId().equals(adminId))
+            throw new InvalidResourceProvidedException("an logged in admin cannot delete him self");
 
         // delete the admin form the database
         adminRepository.deleteById(adminId);
+    }
+
+    /************** HELPER_METHODS *************/
+
+    private void throwExceptionIfExistingEmail(final String adminEmail) {
+        if (adminRepository.existsByUserInformationEmail(adminEmail))
+            throw new DuplicateResourceException("email already exists");
+    }
+
+    private void throwExceptionIfAdminIdNotExisting(final Long adminId) {
+        if (!adminRepository.existsById(adminId)) {
+            throw new ResourceNotFoundException(
+                    "could not delete admin with id: {%s}, no admin found".formatted(adminId)
+            );
+        }
+    }
+
+    // will never throw exception, here the admin is authenticated and authorized
+
+    private Admin getLoggedInAdmin(final String loggedInAdminEmail) {
+        return adminRepository.findByUserInformationEmail(loggedInAdminEmail).orElseThrow();
+    }
+
+    private void throwExceptionIfThePasswordIsNotValid(final String password) {
+        if (!validator.validateUserPassword(password)) {
+            throw new InvalidResourceProvidedException("invalid password");
+        }
     }
 }
