@@ -1,0 +1,14 @@
+
+
+spring:
+  datasource:
+    username: root
+    url: jdbc:mysql://localhost:3306/sps_db
+    password: '1253'
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: 'true'
+  security:
+    filter:
+      order: 10

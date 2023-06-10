@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@PreAuthorize("hasAuthority('OFFICER')")
+@PreAuthorize("hasAnyAuthority('ADMIN', 'OFFICER')")
 @RequestMapping("api/v1/violation")
 @RequiredArgsConstructor
 public class ViolationController {

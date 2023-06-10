@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/zone")
-@PreAuthorize("hasAuthority('ADMIN')")
+@PreAuthorize("isAuthenticated()")
 public class ZoneController {
 
     private final ZoneService zoneService;
