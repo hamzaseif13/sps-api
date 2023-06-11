@@ -268,4 +268,8 @@ public class BookingService {
         if (loggedInCustomerCars.isEmpty() || !loggedInCustomerCars.contains(new Car(specifiedCarId)))
             throw new InvalidResourceProvidedException("you need to choose your car");
     }
+
+    public Long getCounter() {
+        return bookingSessionRepository.count();
+    }
 }
