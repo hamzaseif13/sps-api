@@ -1,10 +1,10 @@
 
 
 aws:
-  region: eu-west-3
-  accessKey: AKIAQILZV44AIBUY23ZG
-  secret: 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
-  violationBucket: sps-violations
+  region:
+  accessKey:
+  secret:
+  violationBucket: 
 spring:
   profiles:
     active: prod
