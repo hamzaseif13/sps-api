@@ -1,0 +1,10 @@
+
+
+aws:
+  region:
+  accessKey:
+  secret:
+  violationBucket: 
+spring:
+  profiles:
+    active: prod

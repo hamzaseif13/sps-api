@@ -24,6 +24,11 @@ public class BookingController {
     // Endpoint for retrieving current BookingSessionHistoryDTO (200 OK)
     // or the latest one if no current exists (200 OK)
     // or (204 No Content) if no data found
+    @GetMapping("counter")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Long> getBookingSessionCounter(){
+        return ResponseEntity.ok(bookingService.getCounter());
+    }
     @GetMapping("current")
     public ResponseEntity<BookingSessionHistoryDTO> getCurrentBookingSessionForLoggedInUser(
             @AuthenticationPrincipal
