@@ -61,7 +61,7 @@ public class OfficerService {
         final var userInformation = mapper.map(request, UserInformation.class);
 
         // email already exists? throw exception
-        throwExceptionIfEmailAlreadyExists(userInformation.getEmail());
+        throwExceptionIfEmailAlreadyExists(request.getEmail());
 
         // password invalid? throw exception
         throwExceptionIfThePasswordIsNotValid(request.getPassword());

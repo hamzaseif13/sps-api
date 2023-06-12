@@ -8,3 +8,6 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: validate
+
+aws:
+  violationBucket: sps-violations

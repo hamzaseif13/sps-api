@@ -79,6 +79,7 @@ public class ZoneService {
         if (!zone.getNumberOfSpaces().equals(request.getNumberOfSpaces())) {
             spaceRepository.removeAllByZoneId(zoneId);
             zone.setSpaces(getSequentialNumberedSpaces(request.getNumberOfSpaces()));
+            zone.setNumberOfSpaces(zone.getSpaces().size());
         }
 
         zone.setFee(request.getFee());
@@ -90,6 +91,9 @@ public class ZoneService {
     }
 
     public void removeZone(final Long zoneId) {
+        if (!zoneRepository.existsById(zoneId))
+            throw new ResourceNotFoundException("not zone found with id: %s".formatted(zoneId));
+
         zoneRepository.deleteById(zoneId);
     }
 

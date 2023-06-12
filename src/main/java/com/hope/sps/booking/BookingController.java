@@ -78,7 +78,7 @@ public class BookingController {
             @AuthenticationPrincipal
             UserInformation loggedInUser
     ) {
-        bookingService.extendCurrentSession(currentSessionId, request, loggedInUser);
+        bookingService.extendCurrentSession(currentSessionId, request, loggedInUser.getEmail());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
