@@ -94,14 +94,14 @@ public class BookingService {
     public void extendCurrentSession(
             final Long currentSessionId,
             final ExtendCurrentSessionRequest request,
-            final UserInformation userInformation
+            final String customerEmail
     ) {
 
         // if there is no active booking session then throw exception
         throwExceptionIfNoActiveBookingSession(currentSessionId);
 
         // get logged in customer
-        final Customer loggedInCustomer = getLoggedInCustomer(userInformation.getEmail());
+        final Customer loggedInCustomer = getLoggedInCustomer(customerEmail);
 
         // if the active booking session is already extended, then throw exception
         throwExceptionIfActiveBookingSessionIsExtended(loggedInCustomer);

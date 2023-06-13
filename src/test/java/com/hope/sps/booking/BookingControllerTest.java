@@ -149,6 +149,6 @@ class BookingControllerTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        verify(bookingService).extendCurrentSession(sessionId, request, loggedInUser);
+        verify(bookingService).extendCurrentSession(sessionId, request, loggedInUser.getEmail());
     }
 }
