@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 public class Validator {
 
     public boolean validateUserPassword(final String passwordBeforeHashing) {
-        final String passwordValidationRegex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
+        final String passwordValidationRegex ="^.{8,}$";
         if (passwordBeforeHashing == null || passwordBeforeHashing.isBlank() || passwordBeforeHashing.isEmpty())
             return false;
 

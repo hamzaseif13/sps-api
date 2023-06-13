@@ -23,7 +23,7 @@ public class ValidatorTest {
     @Test
     void testValidateUserPassword_WithInvalidPassword_ShouldReturnFalse() {
         // Prepare
-        final String invalidPassword = "weakpassword";
+        final String invalidPassword = "weakpwd";
 
         // Execute
         boolean isValid = validator.validateUserPassword(invalidPassword);
