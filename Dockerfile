@@ -1,16 +1,15 @@
 # Stage 1: Build the JAR file
-FROM openjdk:17 as builder
+FROM maven:3.9.2-eclipse-temurin-17-alpine as builder
 
 WORKDIR /app
 
 # Copy only the necessary build files
-COPY mvnw .
-COPY .mvn .mvn
+
 COPY pom.xml .
 COPY src src
 
 # Build the application JAR file
-RUN ./mvnw clean package
+RUN mvn clean package
 
 # Stage 2: Create the final image
 FROM openjdk:17
