@@ -9,7 +9,7 @@ services:
     networks:
       - mynetwork
 
-  app:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
@@ -30,7 +30,14 @@ services:
     networks:
       - mynetwork
     restart: always
-
+  frontend:
+    build:
+      context: ./src/main/resources/static/sps-admin
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    networks:
+      - mynetwork
 networks:
   mynetwork:
     driver: bridge
