@@ -2,8 +2,11 @@
 
 SPS stands for Smart Parking System, Mobile application and admin dashboard (web),Mobile application Where drivers can discover nearby zones and book available barking spaces, Officers assigned a schedules and can report barking violations, Web application Admins manage the state of the application such as zone info, officers schedules, and get overview about the application's state. 
 This repositroy is for the backend.
+
 [Live Admin Dashboard](https://sps-just-admin.netlify.app/) (admin@admin.com 123456789)
+
  [Mobile application Repository](https://github.com/hamzaseif13/sps-mobile)
+ 
   [Admin dashboard Repository](https://github.com/hamzaseif13/sps-admin)
 
 **our infrastructure consits of 4 main components** 
@@ -60,6 +63,7 @@ Step 3 : starting the application:
  Step 4: open the expo go application on your phone and scan the QR code prompted in the console
  
  defualt user logins : email : customer@customer.com    ,        password : 123456789
+ 
   defualt officer logins : email : officer@officer.com    ,        password : 123456789
 
 
