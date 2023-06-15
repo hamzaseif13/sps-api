@@ -38,6 +38,7 @@ Step 1: cloning the repository :
 
    Step 3: Run docker compose to run the backend, frontend, and database : 
    if you are on Linux/mac run the following :
+   
   ` docker compose --env-file ./.env up --build`
   
   if you are on windows  
