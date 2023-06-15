@@ -1,7 +1,9 @@
+
 # sps-api
 
 SPS stands for Smart Parking System, Mobile application and admin dashboard (web),Mobile application Where drivers can discover nearby zones and book available barking spaces, Officers assigned a schedules and can report barking violations, Web application Admins manage the state of the application such as zone info, officers schedules, and get overview about the application's state. 
-This repositroy is for the backend.
+
+<strong style="text-decoration:underline;">*This repositroy is for the backend (API)*.</strong>
 
 [Live Admin Dashboard](https://sps-just-admin.netlify.app/) (admin@admin.com 123456789)
 
