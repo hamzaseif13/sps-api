@@ -47,7 +47,7 @@ Wait a few minutes for the application to build and install dependencies, this m
 after the build process is finished the frontend should be running on [http://localhost:3000](http://localhost:3000) and the backend should be running on [http://localhost:8080](http://localhost:8080)
 default admin logins : email: admin@admin.com,        password: 123456789
 
-Backend API documentation (Postman)
+Backend API documentation [Postman](https://documenter.getpostman.com/view/17428762/2s93sgXqjD)
 
 <hr/>
 
