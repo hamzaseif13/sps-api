@@ -1,15 +1,27 @@
-FROM openjdk:17
+# Stage 1: Build the JAR file
+FROM openjdk:17 as builder
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the application JAR file into the container
-COPY target/SPS-*.jar app.jar
+# Copy only the necessary build files
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY src src
+
+# Build the application JAR file
+RUN ./mvnw clean package
+
+# Stage 2: Create the final image
+FROM openjdk:17
+
+WORKDIR /app
+
+# Copy the JAR file from the builder stage
+COPY --from=builder /app/target/SPS-*.jar app.jar
 
 # Expose the application port
-EXPOSE 80
 EXPOSE 8080
-ENV spring.profiles.active=prod
 
 # Set the entrypoint command to run the application when the container starts
 ENTRYPOINT ["java", "-jar", "app.jar"]

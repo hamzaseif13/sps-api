@@ -16,4 +16,9 @@ spring:
     filter:
       order: 10
 server:
-  port: 80
+  port: 8080
+aws:
+  region: placeholder
+  accessKey: placeholder
+  secret: placeholder
+  violationBucket: placeholder
