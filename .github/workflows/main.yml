@@ -44,6 +44,6 @@ jobs:
           docker ps -q | xargs -r docker rm -f
           docker images -q | xargs -r docker rmi -f
           docker pull  ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.SPS_IMAGE }}:${{ needs.build.outputs.date }}
-          docker run --env-file ~/app.env -e aws.last_update=${{ needs.build.outputs.date }} ~/app.env  -p 80:80 -d --name sps-${{ needs.build.outputs.date }}  ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.SPS_IMAGE }}:${{ needs.build.outputs.date }}
+          docker run --env-file ~/app.env -e aws.last_update=${{ needs.build.outputs.date }} -p 80:80 -d --name sps-${{ needs.build.outputs.date }}  ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.SPS_IMAGE }}:${{ needs.build.outputs.date }}
         
 
