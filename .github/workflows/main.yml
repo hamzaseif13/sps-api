@@ -4,8 +4,13 @@ on:
 
 
 jobs:
-  fist:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: printing the secret
-        run: echo "this is my secret ${{ secrets.name }}"
+    - name: executing remote ssh commands to deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: echo "this is to check lmao" >> lmao.txt
