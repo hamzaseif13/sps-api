@@ -26,6 +26,7 @@ jobs:
       with:
         context: .
         push: true
+        build-args: LAST_UPDATE=${{ steps.date.outputs.date }}
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.SPS_IMAGE }}:${{ steps.date.outputs.date }}
     outputs:
          date: ${{ steps.date.outputs.date }}
