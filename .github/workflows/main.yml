@@ -43,6 +43,6 @@ jobs:
         script: |
           docker rm $(docker ps -a -q)
           docker pull  ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.SPS_IMAGE }}:${{ needs.build.outputs.date }}
-          docker run --env-file --env=aws.last_update=${{ needs.build.outputs.date }} ~/app.env  -p 80:80 -d --name sps  ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.SPS_IMAGE }}:${{ needs.build.outputs.date }}
+          docker run --env-file ~/app.env -e aws.last_update=${{ needs.build.outputs.date }} ~/app.env  -p 80:80 -d --name sps  ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.SPS_IMAGE }}:${{ needs.build.outputs.date }}
         
 
