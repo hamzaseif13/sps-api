@@ -19,6 +19,10 @@ WORKDIR /app
 # Copy the JAR file from the builder stage
 COPY --from=builder /app/target/SPS-*.jar app.jar
 
+ARG LAST_UPDATE
+
+ENV aws.last_update=$LAST_UPDATE
+
 # Expose the application port
 EXPOSE 8080
 
