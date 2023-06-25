@@ -1,0 +1,11 @@
+name: test
+on: 
+   workflow_dispatch:
+
+
+jobs:
+  fist:
+    runs-on: ubuntu-latest
+    steps:
+      - name: printing the secret
+      - run: echo "this is my secret ${{ secrets.name }}"
