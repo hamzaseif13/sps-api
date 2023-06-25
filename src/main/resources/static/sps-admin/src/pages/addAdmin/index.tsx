@@ -21,8 +21,8 @@ const AddAdmin = () => {
     };
     return (
         <section className="px-2 max-w-[800px] m-auto mt-10 pb-20">
-            <h1 className="text-4xl font-bold text-center title">
-                Register New Admin
+            <h1 className="text-4xl font-bold  text-center title">
+                Register New Admin!
             </h1>
             <form
                 onSubmit={handleSubmit(submit)}
