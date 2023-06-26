@@ -12,7 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 import java.sql.Time;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +55,7 @@ public class ZoneServiceTest {
 
         final var spaceDTO1 = createSpaceDTO(space1.getId(), space1.isAvailable());
         final var spaceDTO2 = createSpaceDTO(space2.getId(), space2.isAvailable());
+assertTrue(false);
 
         final var zoneDTO1 = createZoneDTO(1L);
         final var zoneDTO2 = createZoneDTO(2L);
