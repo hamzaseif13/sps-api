@@ -54,7 +54,6 @@ public class ZoneServiceTest {
 
         final var spaceDTO1 = createSpaceDTO(space1.getId(), space1.isAvailable());
         final var spaceDTO2 = createSpaceDTO(space2.getId(), space2.isAvailable());
-        assertTrue(false);
 
         final var zoneDTO1 = createZoneDTO(1L);
         final var zoneDTO2 = createZoneDTO(2L);

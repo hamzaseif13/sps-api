@@ -35,6 +35,6 @@ public class PingPongController {
 
     @GetMapping("/last_update")
     public LastUpdated lastUpdated() {
-        return new LastUpdated(last_update);
+        return new LastUpdated("26/6/2023");
     }
 }
