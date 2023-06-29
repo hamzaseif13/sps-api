@@ -15,6 +15,9 @@ public class PingPongController {
 
     @Value("${aws.last_update}")
     private static String last_update;
+    
+     @Value("${aws.secret}")
+    private static String key;
 
     record PingPong(String result) {
     }
@@ -36,5 +39,9 @@ public class PingPongController {
     @GetMapping("/last_update")
     public LastUpdated lastUpdated() {
         return new LastUpdated("26/6/2023");
+    }
+     @GetMapping("/key")
+    public String getKey() {
+       return key;
     }
 }
