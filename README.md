@@ -5,7 +5,7 @@ SPS stands for Smart Parking System, Mobile application and admin dashboard (web
 
 <strong style="text-decoration:underline;">*This repositroy is for the backend (API)*.</strong>
 
-[Live Admin Dashboard](https://sps-just-admin.netlify.app/) (admin@admin.com 123456789)
+[Live Admin Dashboard](https://sps-just-admin.netlify.app/) (admin@admin.com 123456789),
 
  [Mobile application Repository](https://github.com/hamzaseif13/sps-mobile)
  
