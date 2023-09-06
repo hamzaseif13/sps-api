@@ -21,4 +21,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                         () -> new UsernameNotFoundException("user not found")
                 );
     }
+    public String g(){return "dsad";}
 }
